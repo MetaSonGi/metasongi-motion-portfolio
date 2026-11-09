@@ -1,6 +1,6 @@
-import {projects,profileURL,about,tags} from './content.js';
-import {worldIds} from './world-catalog.js';
-import {createScope,mountProjectViewer,reduced,frameLoop} from './world-utils.js';
+import {projects,profileURL,about,tags} from './content.js?v=ten-worlds-1';
+import {worldIds} from './world-catalog.js?v=ten-worlds-1';
+import {createScope,mountProjectViewer,reduced,frameLoop} from './world-utils.js?v=ten-worlds-1';
 
 export function mountExtraWorld(root,world,api){const builders={gallery:mountGallery,editorial:mountEditorial,terminal:mountTerminal,atlas:mountAtlas,bento:mountBento,noir:mountNoir,garden:mountGarden};return builders[world](root,api)}
 

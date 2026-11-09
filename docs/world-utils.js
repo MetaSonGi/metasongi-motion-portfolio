@@ -1,4 +1,4 @@
-import {projects,tags} from './content.js';
+import {projects,tags} from './content.js?v=ten-worlds-1';
 export function createScope(){const controller=new AbortController();const cleanups=[];return {signal:controller.signal,on(target,event,handler,options={}){target.addEventListener(event,handler,{...options,signal:controller.signal})},add(cleanup){cleanups.push(cleanup)},dispose(){controller.abort();cleanups.forEach(cleanup=>cleanup())}}}
 export function reduced(){return matchMedia('(prefers-reduced-motion: reduce)').matches}
 export function mountProjectViewer(root,scope){const dialog=document.createElement('dialog');dialog.className='case-viewer';dialog.setAttribute('aria-label','프로젝트 상세');document.body.append(dialog);let origin;

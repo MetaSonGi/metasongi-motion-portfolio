@@ -1,9 +1,9 @@
-import { createScene } from './scenes.js';
-import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js';
-import { mountExtraWorld } from './worlds-extra.js';
-import { mountMotionControls } from './motion-controls.js';
-import { mountDesktop } from './desktop.js';
-import { projects,profileURL,tags } from './content.js';
+import { createScene } from './scenes.js?v=ten-worlds-1';
+import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js?v=ten-worlds-1';
+import { mountExtraWorld } from './worlds-extra.js?v=ten-worlds-1';
+import { mountMotionControls } from './motion-controls.js?v=ten-worlds-1';
+import { mountDesktop } from './desktop.js?v=ten-worlds-1';
+import { projects,profileURL,tags } from './content.js?v=ten-worlds-1';
 const root=document.querySelector('#experience'),menu=document.querySelector('#world-menu'),worlds=worldIds;
 buildWorldMenu();
 let current='',dispose=()=>{},paused=matchMedia('(prefers-reduced-motion: reduce)').matches,opener;

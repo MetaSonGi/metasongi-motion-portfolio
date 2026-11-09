@@ -1,5 +1,5 @@
-import './guide.js';
-import { createWorld } from './world.js';
+import './guide.js?v=ten-worlds-1';
+import { createWorld } from './world.js?v=ten-worlds-1';
 document.documentElement.classList.add('js');
 const modes=['orbit','signal','atelier'];
 const copy={orbit:{chapter:'CREATIVE DEVELOPER / AI EXPLORER',title:'Build what’s<br><em>next.</em>',intro:'AI와 웹, 인터랙션을 연결합니다.<br>생각에서 작동하는 경험까지.',label:'LIVE / CREATIVE ENGINE'},signal:{chapter:'HUMAN IDEAS. DIGITAL POSSIBILITIES.',title:'Ideas into<br><em>intelligence.</em>',intro:'코드와 AI를 연결하는 새로운 실험.<br>사용자에게 반응하는 웹을 만듭니다.',label:'LIVE / SIGNAL SYSTEM'},atelier:{chapter:'DESIGNED WITH LOGIC. BUILT WITH FEELING.',title:'A little code.<br><em>A new feeling.</em>',intro:'기술에 감각을 더하는 개발.<br>의미 있는 경험을 상상하고 구현합니다.',label:'LIVE / DIGITAL ATELIER'}};

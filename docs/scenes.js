@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createSpaceFX,createLandingFX } from './motion-fx.js';
+import { createSpaceFX,createLandingFX } from './motion-fx.js?v=ten-worlds-1';
 
 export function createScene(canvas,mode){
  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;
