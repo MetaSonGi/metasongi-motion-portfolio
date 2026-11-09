@@ -1,7 +1,8 @@
+import './guide.js';
 import { createWorld } from './world.js';
 document.documentElement.classList.add('js');
 const modes=['orbit','signal','atelier'];
-const copy={orbit:{chapter:'01 — THE ORBIT',title:'BEYOND<br>THE <em>SCREEN.</em>',intro:'상상을 움직이는 코드로.<br>브라우저 안에서, 새로운 경험을 만듭니다.',label:'FIG. 01 / PARTICLE ORBIT'},signal:{chapter:'02 — THE SIGNAL',title:'HELLO,<br><em>NEW WORLD_</em>',intro:'아이디어를 실행하고, 경계를 다시 씁니다.<br>손끝의 신호가 새로운 인터페이스가 되도록.',label:'SYS. 02 / SIGNAL FIELD'},atelier:{chapter:'03 — THE ATELIER',title:'Code with<br><em>feeling.</em>',intro:'논리와 감각 사이, 나만의 언어를 찾습니다.<br>작은 인터랙션에도 분명한 인상을 담습니다.',label:'STUDY 03 / ORGANIC FORM'}};
+const copy={orbit:{chapter:'CREATIVE DEVELOPER / AI EXPLORER',title:'Build what’s<br><em>next.</em>',intro:'AI와 웹, 인터랙션을 연결합니다.<br>생각에서 작동하는 경험까지.',label:'LIVE / CREATIVE ENGINE'},signal:{chapter:'HUMAN IDEAS. DIGITAL POSSIBILITIES.',title:'Ideas into<br><em>intelligence.</em>',intro:'코드와 AI를 연결하는 새로운 실험.<br>사용자에게 반응하는 웹을 만듭니다.',label:'LIVE / SIGNAL SYSTEM'},atelier:{chapter:'DESIGNED WITH LOGIC. BUILT WITH FEELING.',title:'A little code.<br><em>A new feeling.</em>',intro:'기술에 감각을 더하는 개발.<br>의미 있는 경험을 상상하고 구현합니다.',label:'LIVE / DIGITAL ATELIER'}};
 let mode=0,paused=matchMedia('(prefers-reduced-motion: reduce)').matches, rotation=.3,tilt=.3,targetRotation=.3,targetTilt=.3,burst=0,time=0,dragging=false,startX=0,startY=0,lastX=0,lastY=0,velocity=0;
 const canvas=document.querySelector('#art'),scrubber=document.querySelector('#universe'),motion=document.querySelector('#motion');
 
