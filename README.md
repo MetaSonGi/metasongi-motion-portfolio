@@ -1,9 +1,9 @@
-# MetaSonGi — Three Different Worlds
+# MetaSonGi — Ten Different Worlds
 
 공개 사이트: [metasongi.github.io/metasongi-motion-portfolio](https://metasongi.github.io/metasongi-motion-portfolio/)
 GitHub Pages는 main 브랜치의 docs 폴더에서 배포합니다. 로그인 없이 접속할 수 있는 정적 포트폴리오입니다.
 
-색상만 바꾸는 테마가 아니라, 페이지 구조·3D 장면·내비게이션·조작 방식이 다른 세 가지 포트폴리오입니다.
+색상만 바꾸는 테마가 아니라, 페이지 구조·3D 장면·내비게이션·조작 방식이 다른 열 가지 포트폴리오입니다.
 
 ## 01 / Beyond Gravity (`?world=space`)
 
@@ -21,7 +21,7 @@ GitHub Pages는 main 브랜치의 docs 폴더에서 배포합니다. 로그인 �
 
 ## 공통
 
-- 상단 `세계 바꾸기` 또는 Alt + 1 / 2 / 3으로 전환합니다. URL에 각 세계를 직접 지정할 수 있습니다.
+- 상단 `세계 바꾸기` 또는 Alt + 1~9 / 0으로 전환합니다. URL에 각 세계를 직접 지정할 수 있습니다.
 - 세계 전환 시 RAF·이벤트·타이머·WebGL 지오메트리·재질·텍스처·컨텍스트를 정리합니다.
 - 모션 일시정지, reduced-motion, 키보드 조작, 모달 포커스와 스크린리더 안내를 지원합니다.
 - 프로젝트 정보는 확인한 내용만 사용합니다. Pixelle 실제 영상 생성에는 별도 모델·서비스 설정이 필요함을 명시합니다.
@@ -44,3 +44,17 @@ GitHub Pages는 main 브랜치의 docs 폴더에서 배포합니다. 로그인 �
 모션 감소 설정에서는 큰 동작을 생략합니다. 3D 모션 일시정지 중에는 모션을 멈추고 본문·경로 탐색을 유지합니다.
 
 `docs/`를 정적 서버로 제공하면 실행됩니다. 외부 빌드 과정은 없습니다. Three.js와 MIT 라이선스는 `docs/vendor/`에 포함했습니다. Google Fonts 로드가 실패하면 시스템 글꼴을 사용합니다. WebGL이 없는 환경에서도 경로를 통한 프로젝트 설명과 OS 작업실은 탐색할 수 있습니다. 이전 디자인 소스는 참고를 위해 남겨두었으며 현재 진입점은 `experience.js`입니다.
+
+## 04–10 / 새로운 세계
+
+|세계|직접 해볼 수 있는 조작|
+|---|---|
+|Object Room (`gallery`)|가로 드래그 전시·작품 상세|
+|The Build Journal (`editorial`)|개발 노트 펼치기·글자 크기·읽기 진행률|
+|Midnight Console (`terminal`)|명령·히스토리·자동 완성·매트릭스|
+|Idea Atlas (`atlas`)|노드 이동·지도 패닝·확대·기술 관계|
+|Play / Build (`bento`)|캔버스 그리기·스택 섞기·언어 전환|
+|The Developer Cut (`noir`)|장면 전환·재생·타임라인|
+|Digital Garden (`garden`)|씨앗 심기·스크롤 줄기 성장·프로젝트 열기|
+
+`?world=이름`으로 직접 열 수 있으며, 상단 세계 선택 메뉴에서 전체 10개를 탐색합니다. 각 세계는 화면 구조·글꼴·탐색 방식·인터랙션이 다릅니다. 별도의 외부 LLM이나 유료 API를 호출하지 않습니다.

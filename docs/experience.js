@@ -1,8 +1,11 @@
 import { createScene } from './scenes.js';
+import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js';
+import { mountExtraWorld } from './worlds-extra.js';
 import { mountMotionControls } from './motion-controls.js';
 import { mountDesktop } from './desktop.js';
 import { projects,profileURL,tags } from './content.js';
-const root=document.querySelector('#experience'),menu=document.querySelector('#world-menu'),worlds=['space','journey','workspace'];
+const root=document.querySelector('#experience'),menu=document.querySelector('#world-menu'),worlds=worldIds;
+buildWorldMenu();
 let current='',dispose=()=>{},paused=matchMedia('(prefers-reduced-motion: reduce)').matches,opener;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const flightPhases=[
@@ -22,8 +25,8 @@ document.querySelector('#choose-world').onclick=openMenu;document.querySelector(
 menu.addEventListener('close',()=>{document.body.style.overflow='';opener?.focus()});
 menu.addEventListener('click',event=>{const r=menu.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)menu.close()});
 document.querySelectorAll('[data-world-choice]').forEach(button=>button.onclick=()=>{menu.close();navigate(button.dataset.worldChoice)});
-function navigate(name,push=true,initialEffect){if(!worlds.includes(name))name='space';if(current===name)return;dispose();dispose=()=>{};current=name;document.body.dataset.world=name;document.body.style.overflow='';window.scrollTo({top:0,behavior:'instant'});root.replaceChildren();const index=worlds.indexOf(name);document.querySelector('.world-shortcut').textContent=`0${index+1} / 03`;document.querySelector('#world-label').textContent=['INTO THE UNKNOWN','A LITTLE JOURNEY','PERSONAL OPERATING SYSTEM'][index];document.querySelectorAll('[data-world-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldChoice===name)));if(push){const url=new URL(location.href);url.searchParams.set('world',name);url.hash='';history.pushState({world:name},'',url)}try{localStorage.setItem('metasongi-world-v3',name)}catch{}document.querySelector('#announcement').textContent=`${['우주 탐사','캐릭터 여정','개발자 작업실'][index]} 포트폴리오를 열었습니다.`;
- let sceneDispose;if(name==='workspace'){sceneDispose=mountDesktop(root,{navigate,openMenu});document.querySelector('#pause').hidden=true}else{document.querySelector('#pause').hidden=false;sceneDispose=mountJourney(name)}
+function navigate(name,push=true,initialEffect){if(!worlds.includes(name))name='space';if(current===name)return;dispose();dispose=()=>{};current=name;document.body.dataset.world=name;document.body.style.overflow='';window.scrollTo({top:0,behavior:'instant'});root.replaceChildren();const index=worlds.indexOf(name);document.querySelector('.world-shortcut').textContent=`${String(index+1).padStart(2,'0')} / 10`;document.querySelector('#world-label').textContent=worldCatalog[index].label;document.querySelectorAll('[data-world-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldChoice===name)));if(push){const url=new URL(location.href);url.searchParams.set('world',name);url.hash='';history.pushState({world:name},'',url)}try{localStorage.setItem('metasongi-world-v3',name)}catch{}document.querySelector('#announcement').textContent=`${worldCatalog[index].name} 포트폴리오를 열었습니다.`;
+ let sceneDispose;if(name==='workspace'){sceneDispose=mountDesktop(root,{navigate,openMenu});document.querySelector('#pause').hidden=true}else if(name==='space'||name==='journey'){document.querySelector('#pause').hidden=false;sceneDispose=mountJourney(name)}else{document.querySelector('#pause').hidden=true;sceneDispose=mountExtraWorld(root,name,{navigate,openMenu})}
  const labDispose=mountMotionControls(root,name,{trigger:id=>sceneDispose.trigger?.(id),navigate,openMenu});dispose=()=>{labDispose();sceneDispose()};if(initialEffect)sceneDispose.trigger?.(initialEffect);
  if(push&&!reduced.matches){document.querySelector('.world-portal')?.remove();const portal=document.createElement('div');portal.className='world-portal';portal.innerHTML='<span>◈</span><small>ENTERING / '+name.toUpperCase()+'</small>';document.body.append(portal);portal.animate([{opacity:0,clipPath:'circle(0% at 50% 50%)'},{opacity:1,clipPath:'circle(150% at 50% 50%)',offset:.4},{opacity:0,clipPath:'circle(150% at 50% 50%)'}],{duration:850,easing:'cubic-bezier(.22,1,.36,1)'}).finished.catch(()=>{}).finally(()=>portal.remove())}
  root.classList.remove('entering');void root.offsetWidth;root.classList.add('entering');
@@ -47,7 +50,7 @@ function mountJourney(mode){
 }
 document.querySelector('#pause').onclick=()=>{paused=!paused;document.querySelector('#pause').setAttribute('aria-pressed',String(paused));document.querySelector('#pause').textContent=paused?'▷':'Ⅱ';document.querySelector('#pause').setAttribute('aria-label',paused?'자동 모션 재생':'자동 모션 일시정지');document.body.classList.toggle('motion-paused',paused)};
 window.addEventListener('popstate',()=>navigate(new URL(location.href).searchParams.get('world')||'space',false));
-window.addEventListener('keydown',event=>{if(event.altKey&&['1','2','3'].includes(event.key)){event.preventDefault();if(menu.open)menu.close();navigate(worlds[Number(event.key)-1])}});
+window.addEventListener('keydown',event=>{if(event.altKey&&/^[0-9]$/.test(event.key)){event.preventDefault();if(menu.open)menu.close();navigate(worlds[event.key==='0'?9:Number(event.key)-1])}});
 window.addEventListener('pagehide',()=>dispose(),{once:true});
 const requested=new URL(location.href).searchParams.get('world');navigate(worlds.includes(requested)?requested:'space',false);
 document.querySelector('#pause').setAttribute('aria-pressed',String(paused));document.querySelector('#pause').textContent=paused?'▷':'Ⅱ';document.querySelector('#pause').setAttribute('aria-label',paused?'자동 모션 재생':'자동 모션 일시정지');document.body.classList.toggle('motion-paused',paused);
