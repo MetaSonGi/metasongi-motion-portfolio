@@ -1,5 +1,8 @@
 # MetaSonGi — Three Different Worlds
 
+공개 사이트: [metasongi.github.io/metasongi-motion-portfolio](https://metasongi.github.io/metasongi-motion-portfolio/)
+GitHub Pages는 main 브랜치의 docs 폴더에서 배포합니다. 로그인 없이 접속할 수 있는 정적 포트폴리오입니다.
+
 색상만 바꾸는 테마가 아니라, 페이지 구조·3D 장면·내비게이션·조작 방식이 다른 세 가지 포트폴리오입니다.
 
 ## 01 / Beyond Gravity (`?world=space`)
@@ -40,4 +43,4 @@
 
 모션 감소 설정에서는 큰 동작을 생략합니다. 3D 모션 일시정지 중에는 모션을 멈추고 본문·경로 탐색을 유지합니다.
 
-`dist/`를 정적 서버로 제공하면 실행됩니다. 외부 빌드 과정은 없습니다. Three.js와 MIT 라이선스는 `dist/vendor/`에 포함했습니다. Google Fonts 로드가 실패하면 시스템 글꼴을 사용합니다. WebGL이 없는 환경에서도 경로를 통한 프로젝트 설명과 OS 작업실은 탐색할 수 있습니다. 이전 디자인 소스는 참고를 위해 남겨두었으며 현재 진입점은 `experience.js`입니다.
+`docs/`를 정적 서버로 제공하면 실행됩니다. 외부 빌드 과정은 없습니다. Three.js와 MIT 라이선스는 `docs/vendor/`에 포함했습니다. Google Fonts 로드가 실패하면 시스템 글꼴을 사용합니다. WebGL이 없는 환경에서도 경로를 통한 프로젝트 설명과 OS 작업실은 탐색할 수 있습니다. 이전 디자인 소스는 참고를 위해 남겨두었으며 현재 진입점은 `experience.js`입니다.
