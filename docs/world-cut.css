@@ -1,0 +1,103 @@
+.world-cut {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  animation: world-cut-envelope .76s ease-out both;
+  background: radial-gradient(ellipse at 58% 51%,var(--cut-tint),#0c112d 68%);
+}
+.world-cut i { position: absolute; display: block; pointer-events: none; }
+.world-cut i:first-child {
+  inset: -15%;
+  background: linear-gradient(100deg,transparent 34%,var(--cut-tint) 44%,var(--cut-light) 49%,#fff 50%,var(--cut-light) 51%,transparent 65%);
+  mix-blend-mode: screen;
+  animation: world-light-pass .76s cubic-bezier(.19,.69,.27,1) both;
+}
+.world-cut i:nth-child(2) {
+  width: min(66vw,620px); aspect-ratio: 1;
+  border: 2px solid var(--cut-light); border-radius: 50%;
+  box-shadow: 0 0 3rem var(--cut-tint),inset 0 0 2rem var(--cut-light);
+  animation: world-wave .76s ease-out both;
+}
+.world-cut[data-shape=grid] i:nth-child(2) { border-radius: 12%; transform: rotate(18deg); }
+.world-cut[data-shape=beam] i:nth-child(2) { border-radius: 1rem; aspect-ratio: 2.4; }
+.world-cut span {
+  position: relative;
+  padding: .72rem 1.1rem;
+  border: 1px solid var(--cut-light);
+  border-radius: 999px;
+  color: #fff;
+  background: #0a0d1be8;
+  font: 600 .85rem/1.2 system-ui,sans-serif;
+  letter-spacing: .04em;
+}
+@keyframes world-cut-envelope {
+  0% { opacity: 0; }
+  22% { opacity: .88; }
+  58% { opacity: .52; }
+  100% { opacity: 0; }
+}
+@keyframes world-light-pass { from { transform: translateX(-84%) skewX(-17deg); } to { transform: translateX(86%) skewX(-17deg); } }
+@keyframes world-wave { from { scale: .15; opacity: .85; } to { scale: 1.8; opacity: 0; } }
+@property --chapter-glow { syntax: '<number>'; inherits: false; initial-value: 0; }
+.story-stage {
+  touch-action: pan-y pinch-zoom;
+  --chapter-glow: 0;
+  --chapter-light: #8cb2ff;
+}
+.journey .story-stage { --chapter-light: #e0ffc8; }
+.story-stage::after {
+  content: '';
+  position: absolute;
+  z-index: 9;
+  inset: 0;
+  pointer-events: none;
+  opacity: var(--chapter-glow);
+  background: linear-gradient(122deg, transparent 32%, var(--chapter-light) 49%, transparent 62%);
+  mix-blend-mode: screen;
+}
+.story-stage .scene-layer { cursor: grab; touch-action: pan-y pinch-zoom; }
+.story-stage.camera-dragging,.story-stage.camera-dragging .scene-layer { cursor: grabbing; user-select: none; }
+.route-label [data-camera-reset] {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  padding: .35rem .5rem;
+  border: 1px solid currentColor;
+  border-radius: .35rem;
+}
+.route-label [data-camera-reset][hidden] { display: none; }
+@media(prefers-reduced-motion:no-preference) {
+  .gallery-track.is-dragging .exhibit-art { transition: filter .24s; filter: saturate(1.19) brightness(1.09); }
+  .gallery-track.is-dragging .object-sculpture { filter: drop-shadow(0 0 1.1rem #f5ce8877); }
+  .atlas-map:active { filter: drop-shadow(0 0 .6rem #81afff42); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .world-cut { display: none; }
+}
+@media(prefers-reduced-motion:no-preference) {
+  body:not(.motion-paused) .journal-story details[open] .journal-body {
+    animation: world-paper-light .52s ease-out both;
+  }
+  body:not(.motion-paused) #console-output > :last-child {
+    animation: world-terminal-signal .38s ease-out both;
+  }
+  .bento-project,.landing-world-link {
+    transition: box-shadow .3s ease, border-color .3s ease, background .3s ease;
+  }
+  .bento-project:is(:hover,:focus-visible) { box-shadow: 0 0 1.5rem #ef98574b; }
+  .landing-world-link:is(:hover,:focus-visible) { box-shadow: 0 0 1.25rem #7db8ff3e; }
+}
+@keyframes world-paper-light {
+  from { opacity: .48; filter: brightness(1.13); translate: 0 .45rem; }
+  to { opacity: 1; filter: none; translate: none; }
+}
+@keyframes world-terminal-signal {
+  from { opacity: .42; text-shadow: 0 0 .8rem #9affb2; }
+  to { opacity: 1; text-shadow: none; }
+}
+.route-label [data-camera-reset] { background: color-mix(in srgb,currentColor 10%,transparent); }

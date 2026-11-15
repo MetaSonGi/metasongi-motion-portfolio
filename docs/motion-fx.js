@@ -14,7 +14,7 @@ export function createSpaceFX(scene,camera,texture,planets){
   if(orbitAge<5.8){const p=planets[orbitIndex].group.position;const radius=innerWidth<700?13:11;const angle=Math.sin(Math.min(1,orbitAge/5.8)*Math.PI)*.65;const target=new THREE.Vector3(p.x+Math.sin(angle)*radius,p.y+1.3,p.z+Math.cos(angle)*radius);const enter=Math.min(1,orbitAge/.7,(5.8-orbitAge)/.8);camera.position.lerp(target,Math.max(0,enter));camera.lookAt(p.x,p.y,p.z);group.position.copy(camera.position);group.quaternion.copy(camera.quaternion)}
   const life=pulseAge/1.5;pulse.visible=life<1;pulse.position.set(0,0,-5);pulse.scale.setScalar(.1+life*7);ringMaterial.opacity=Math.max(0,1-life)*.65;glow.position.set(0,0,-5);glow.material.opacity=Math.max(0,1-pulseAge/.7)*.23;
  }
- return {trigger,update,reset(){warpAge=meteorAge=orbitAge=pulseAge=99;camera.fov=innerWidth<700?58:47;camera.updateProjectionMatrix()}};
+ return {trigger,update,cancelOrbit(){orbitAge=99},reset(){warpAge=meteorAge=orbitAge=pulseAge=99;camera.fov=innerWidth<700?58:47;camera.updateProjectionMatrix()}};
 }
 
 export function createLandingFX(scene){
