@@ -168,3 +168,26 @@ body[data-world=home] .world-shortcut { display:none; }
   .landing-hero::after { opacity: 0; }
 }
 .landing-copy:focus-within { opacity: 1; transform: none; }
+.landing-preview {
+  z-index: 2;
+  position: absolute;
+  right: 6vw;
+  bottom: max(1.2rem, env(safe-area-inset-bottom));
+  padding: .7rem 1rem;
+  border: 1px solid #9bbeff82;
+  border-radius: 99px;
+  background: #091327e8;
+  color: #e2edff;
+  font-size: .82rem;
+  font-weight: 600;
+}
+.landing-preview:hover, .landing-preview:focus-visible {
+  border-color: #e2edff;
+  box-shadow: 0 0 1.25rem #7ca9ff70;
+}
+.landing-hero::after {
+  opacity: min(.85, calc(var(--travel) * var(--travel) * .75 + var(--impact, 0) * .42));
+}
+@media(prefers-reduced-motion:reduce) {
+  .landing-hero::after { opacity: 0; }
+}

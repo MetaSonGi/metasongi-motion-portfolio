@@ -1,4 +1,5 @@
-import { createLandingScene } from './landing-scene.js?v=motion-2';
+import { playIntroSound } from './landing-sfx.js?v=motion-3';
+import { createLandingScene } from './landing-scene.js?v=motion-3';
 import { projects, profileURL, tags } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
@@ -16,6 +17,8 @@ export function mountLanding(root, { openMenu, isPaused }) {
             <button data-landing-worlds>10개 세계 탐험 ↗</button>
           </div>
         </div>
+        <button class="landing-preview" type="button" aria-pressed="false">▶ 인트로 · 사운드</button>
+        <span class="sr-only" role="status" data-intro-status></span>
         <div class="landing-visual">
           <div class="landing-orbit" aria-hidden="true"></div>
           <canvas aria-hidden="true"></canvas>
@@ -44,12 +47,54 @@ export function mountLanding(root, { openMenu, isPaused }) {
   const hero = flight.querySelector('.landing-hero');
   const visual = hero.querySelector('.landing-visual');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const preview = hero.querySelector('.landing-preview');
+  const status = hero.querySelector('[data-intro-status]');
+  let audio;
+  let started = null;
+
+  function stopIntro() {
+    started = null;
+    preview.textContent = '▶ 인트로 · 사운드';
+    preview.setAttribute('aria-pressed', 'false');
+    hero.style.setProperty('--impact', '0');
+    if (audio) {
+      void audio.close().catch(() => {});
+      audio = undefined;
+    }
+  }
+
+  scope.on(preview, 'click', () => {
+    if (started !== null) {
+      stopIntro();
+      status.textContent = '인트로를 정지했습니다.';
+      return;
+    }
+    started = performance.now();
+    preview.textContent = '■ 인트로 정지';
+    preview.setAttribute('aria-pressed', 'true');
+    status.textContent = '인트로 재생 중입니다.';
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      audio = new Audio();
+      void playIntroSound(audio).catch(() => {
+        if (started !== null) status.textContent = '효과음을 재생할 수 없어 화면만 재생합니다.';
+      });
+    } catch {
+      status.textContent = '효과음을 재생할 수 없어 화면만 재생합니다.';
+    }
+  });
+  scope.on(document, 'visibilitychange', () => {
+    if (document.hidden && started !== null) stopIntro();
+  });
+  scope.add(stopIntro);
+
   let scene;
   try {
     scene = createLandingScene(visual.querySelector('canvas'));
     visual.classList.add('has-scene');
   } catch {
     flight.classList.add('static-flight');
+    preview.hidden = true;
     return () => scope.dispose();
   }
 
@@ -69,6 +114,11 @@ export function mountLanding(root, { openMenu, isPaused }) {
   function render(now) {
     const dt = Math.min((now - last) / 1000, .05);
     last = now;
+    const elapsed = started === null ? 0 : (now - started) / 1000;
+    if (elapsed > 2.85) {
+      stopIntro();
+      status.textContent = '인트로 재생이 끝났습니다.';
+    }
     const rect = flight.getBoundingClientRect();
     if (!motion.matches && rect.bottom > 0 && !document.hidden) {
       const scrollRange = Math.max(1, flight.offsetHeight - hero.offsetHeight);
@@ -78,7 +128,12 @@ export function mountLanding(root, { openMenu, isPaused }) {
       smoothX += (pointerX - smoothX) * movement * 5;
       smoothY += (pointerY - smoothY) * movement * 5;
       hero.style.setProperty('--travel', String(progress));
-      scene.render(progress, movement, smoothX, smoothY);
+      const playing = started !== null && !paused;
+      const impact = playing ? Math.exp(-Math.max(0, elapsed - 1.1) * 4.2) * Math.min(1, elapsed ** 3 / 1.1 ** 3) : 0;
+      const scrollImpact = Math.max(0, 1 - Math.abs(progress - .76) * 5) * .32;
+      const push = playing ? Math.sin(Math.PI * Math.min(1, elapsed / 2.85)) * .63 : 0;
+      hero.style.setProperty('--impact', String(Math.max(impact, scrollImpact)));
+      scene.render(Math.max(progress, push), movement, smoothX, smoothY, Math.max(impact, scrollImpact));
     }
     frame = requestAnimationFrame(render);
   }

@@ -12,7 +12,7 @@ export function createLandingScene(canvas) {
   scene.add(sculpture);
   const geometry = new THREE.TorusKnotGeometry(1.76, .46, 210, 18, 2, 3);
   const surface = new THREE.ShaderMaterial({
-    uniforms: { time: { value: 0 }, travel: { value: 0 } },
+    uniforms: { time: { value: 0 }, travel: { value: 0 }, impact: { value: 0 } },
     vertexShader: `
       varying vec3 normalView, positionView, point;
       void main() {
@@ -23,7 +23,7 @@ export function createLandingScene(canvas) {
         gl_Position = projectionMatrix * local;
       }`,
     fragmentShader: `
-      uniform float time, travel;
+      uniform float time, travel, impact;
       varying vec3 normalView, positionView, point;
       void main() {
         vec3 n = normalize(normalView);
@@ -37,6 +37,7 @@ export function createLandingScene(canvas) {
         vec3 color = vec3(.025,.045,.13) + rim * vec3(.14,.36,.9);
         color += sheet * vec3(.72,.88,1.) + blue * vec3(.12,.37,.95);
         color += gold * vec3(.95,.48,.17) + stripes * (.1 + travel * .42) * vec3(.22,.63,1.);
+        color += impact * (rim * .65 + stripes * .4) * vec3(.55,.78,1.);
         gl_FragColor = vec4(color, 1.);
       }`,
   });
@@ -96,7 +97,7 @@ export function createLandingScene(canvas) {
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
     },
-    render(progress, dt, pointerX, pointerY) {
+    render(progress, dt, pointerX, pointerY, impact = 0) {
       time += dt;
       const approach = progress * progress * (3 - 2 * progress);
       sculpture.position.set(compact ? 0 : 2.75 * (1 - approach * .8), compact ? -1.65 : .04, 0);
@@ -105,16 +106,18 @@ export function createLandingScene(canvas) {
       rings.rotation.y = time * -.24;
       surface.uniforms.time.value = time;
       surface.uniforms.travel.value = approach;
+      surface.uniforms.impact.value = impact;
+      ringMaterial.opacity = .32 + impact * .55;
       debris.children.forEach((shard, index) => {
         const { angle, radius, z } = debrisPositions[index];
         const orbit = angle + time * (.14 - index % 4 * .017) + approach * .5;
-        const expansion = radius * (1 + approach * .65);
-        shard.position.set(sculpture.position.x + Math.cos(orbit) * expansion, sculpture.position.y + Math.sin(orbit) * expansion * .8, z + approach * (5 + index % 8));
+        const expansion = radius * (1 + approach * .65 + impact * .82);
+        shard.position.set(sculpture.position.x + Math.cos(orbit) * expansion, sculpture.position.y + Math.sin(orbit) * expansion * .8, z + approach * (5 + index % 8) + impact * 2.3);
         shard.rotation.x += dt * .32;
         shard.rotation.y += dt * .28;
       });
       stars.rotation.z = time * .013 + approach * .19;
-      camera.position.set(pointerX * .7 + approach * sculpture.position.x, pointerY * -.47 + approach * sculpture.position.y, (compact ? 12.4 : 11.4) - approach * 10.6);
+      camera.position.set(pointerX * .7 + approach * sculpture.position.x, pointerY * -.47 + approach * sculpture.position.y, (compact ? 12.4 : 11.4) - approach * 10.6 - impact * 1.2);
       camera.lookAt(camera.position.x * .78, camera.position.y * .84, -7);
       renderer.render(scene, camera);
     },
