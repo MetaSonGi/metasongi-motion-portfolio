@@ -1,8 +1,8 @@
-import { mountProjectReel } from './project-reel.js?v=reel-1';
+import { mountProjectReel } from './project-reel.js?v=fx-1';
 import { playIntroSound } from './landing-sfx.js?v=motion-4';
 import { createLandingScene } from './landing-scene.js?v=motion-4';
 import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
-import { projects, profileURL, tags } from './content.js?v=ten-worlds-1';
+import { projects, profileURL } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
 const projectArt = { vrm: 'vrm', pixelle: 'glass', motion: 'orbit' };
@@ -13,9 +13,7 @@ export function mountLanding(root, { isPaused }) {
     <div class="landing" id="portfolio-top">
       <div class="landing-flight"><section class="landing-hero" aria-labelledby="landing-title">
         <div class="landing-copy">
-          <p class="landing-kicker">CREATIVE DEVELOPER</p>
           <h1 id="landing-title">Interfaces<br><em>in motion.</em></h1>
-          <p>목소리를 움직임으로, 코드를 탐험할 수 있는 공간으로.<br>MetaSonGi의 웹 인터랙션과 AI 영상 실험.</p>
           <div class="landing-actions">
             <a href="#selected-work">프로젝트 보기 ↓</a>
             <a class="landing-secondary" href="#portfolio-worlds">10개 세계 탐험 ↓</a>
@@ -30,29 +28,29 @@ export function mountLanding(root, { isPaused }) {
       </section></div>
       <section id="selected-work" class="landing-work film-work" aria-labelledby="work-title">
         <div class="landing-section-head" data-scene-reveal>
-          <h2 id="work-title">Selected<br><em>work.</em></h2>
-          <p>스크롤하거나 아래 타임라인을 눌러 프로젝트 장면을 넘겨보세요.</p>
+          <h2 id="work-title">Works.</h2>
+          <p>스크롤로 장면 전환 ↓</p>
         </div>
         <div class="project-reel"><div class="project-stage"><div class="landing-projects">${projects.map(project => `
           <article class="landing-project scene-${project.id}">
             <div class="project-frame" aria-hidden="true"><img src="art/${projectArt[project.id]}.jpg" alt="" decoding="async"></div>
             <div class="landing-project-copy">
-              <p class="landing-kicker">${project.category}</p>
               <h3>${project.name}</h3>
-              <p>${project.description}</p>
-              <div class="tag-list">${tags(project.stack)}</div>
               <div class="project-ctas">
                 <button type="button" data-case="${project.id}">프로젝트 상세 ↗</button>
                 <a href="${project.url}" target="_blank" rel="noopener">소스 코드 ↗</a>
               </div>
             </div>
-          </article>`).join('')}</div>
+          </article>`).join('')}
+            <canvas class="reel-fx" aria-hidden="true"></canvas>
+          </div>
           <div class="reel-controls" role="group" aria-label="프로젝트 장면 선택">
             <button type="button" data-previous aria-label="이전 장면">←</button>
             <div class="reel-shots">
               ${['가상 인물','AI 영상','10개 세계'].map((label,index) => `<button type="button" data-shot="${index}"><span>${label}</span></button>`).join('')}
             </div>
             <button type="button" data-next aria-label="다음 장면">→</button>
+            <button type="button" data-replay-fx aria-label="장면 효과 다시 재생" title="효과 다시 재생">⟲</button>
           </div>
         </div></div>
       </section>

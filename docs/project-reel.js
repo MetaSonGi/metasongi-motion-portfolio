@@ -1,3 +1,5 @@
+import { mountReelEffects } from './reel-effects.js?v=fx-1';
+
 export function mountProjectReel(root, scope) {
   const reel = root.querySelector('.project-reel');
   const stage = reel.querySelector('.project-stage');
@@ -6,6 +8,8 @@ export function mountProjectReel(root, scope) {
   const previous = reel.querySelector('[data-previous]');
   const next = reel.querySelector('[data-next]');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const playEffect = mountReelEffects(stage, scope);
+  const replay = reel.querySelector('[data-replay-fx]');
   let active = -1;
   let frame = 0;
 
@@ -26,6 +30,7 @@ export function mountProjectReel(root, scope) {
       shots[chapterIndex].setAttribute('aria-current', isCurrent ? 'step' : 'false');
     }
     active = index;
+    if (index >= 0) playEffect(index);
     previous.setAttribute('aria-disabled', String(index <= 0));
     next.setAttribute('aria-disabled', String(index >= chapters.length - 1));
   }
@@ -45,6 +50,7 @@ export function mountProjectReel(root, scope) {
   }
 
   shots.forEach((button, index) => scope.on(button, 'click', () => seek(index)));
+  scope.on(replay, 'click', () => { if (active >= 0) playEffect(active); });
   scope.on(previous, 'click', () => seek(active - 1));
   scope.on(next, 'click', () => seek(active + 1));
   scope.on(window, 'scroll', schedule, { passive: true });

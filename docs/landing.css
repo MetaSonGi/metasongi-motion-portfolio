@@ -450,3 +450,35 @@ body[data-world=home] .case-viewer::backdrop { background: #050916b6; }
     background: linear-gradient(0deg,#080c15 22%,#080c15e8 35%,#080c1540 61%,transparent 100%);
   }
 }
+.film-work .landing-section-head { margin-bottom: 1.6rem; }
+.film-work .landing-section-head h2 { font-size: clamp(2.5rem,6vw,5rem); }
+.film-work .landing-project-copy h3 { font-size: clamp(1.85rem,4.1vw,4.5rem); }
+.film-work .landing-project-copy { padding: clamp(1.2rem,4.5vw,4rem); gap: .6rem; }
+.project-frame::after {
+  background: linear-gradient(90deg, #05070dca, #05070d52 28%, transparent 65%),
+    linear-gradient(0deg, #05070df0, transparent 57%);
+}
+.reel-fx { display: none; }
+@media(prefers-reduced-motion:no-preference) {
+  .reel-ready .reel-controls { grid-template-columns: 3rem minmax(0,1fr) 3rem 3rem; }
+  .reel-ready .reel-fx {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    border-radius: 1.2rem 1.2rem 0 0;
+  }
+  .reel-ready .landing-project-copy { z-index: 1; }
+  .motion-paused [data-replay-fx] { display: none; }
+}
+@media(max-width:720px) {
+  .film-work .landing-section-head { gap: .45rem; }
+  .film-work .landing-project-copy { padding: 1rem; }
+  .film-work .landing-project-copy h3 { font-size: clamp(1.65rem,7vw,2.6rem); }
+  .project-frame img { height: 95%; }
+  .project-frame::after { background: linear-gradient(0deg,#05070df0 5%,#05070d80 26%,transparent 57%); }
+  .reel-ready .reel-controls { grid-template-columns: 2rem minmax(0,1fr) 2rem 2rem; }
+}
