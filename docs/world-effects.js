@@ -6,7 +6,7 @@ const themes = {
   editorial: { name:'페이지 턴', color:'#ffc49f', mode:'page' },
   terminal:  { name:'콘솔 입력', color:'#9affad', mode:'code', lines:['> projects','> open vrm','> theme atlas'] },
   atlas:     { name:'노드 연결', color:'#80c8ff', mode:'network' },
-  bento:     { name:'타이핑과 스파크', color:'#ffb37a', mode:'code', lines:['const ctx = canvas.getContext("2d");','ctx.fillStyle = "#ffb37a";','ctx.fillRect(x, y, 4, 4);'] },
+  bento:     { name:'타이핑과 스파크', color:'#ffb37a', mode:'code', sparks:true, lines:['const ctx = canvas.getContext("2d");','ctx.fillStyle = "#ffb37a";','ctx.fillRect(x, y, 4, 4);'] },
   noir:      { name:'필름 번', color:'#fff1ce', mode:'film' },
   garden:    { name:'꽃가루 바람', color:'#d7f299', mode:'petals' },
 };
@@ -161,7 +161,7 @@ export function createWorldEffect(button, announcement) {
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const { color, mode, name, lines } = current;
+    const { color, mode, name, lines, sparks } = current;
     const start = performance.now();
     const duration = mode === 'code' ? 2850 : 1630;
     announcement.textContent = `${name} 효과 재생`;
@@ -171,7 +171,10 @@ export function createWorldEffect(button, announcement) {
       if (progress === 1 || document.hidden || motion.matches) { stop(); return; }
       context.clearRect(0, 0, width, height);
       const state = { width, height, progress, color };
-      if (mode === 'code') paintCode(context, state, lines);
+      if (mode === 'code') {
+        if (sparks) paintParticles(context, state, 'fireflies');
+        paintCode(context, state, lines);
+      }
       else if (mode === 'network') paintNetwork(context, state);
       else if (['warp','fireflies','petals'].includes(mode)) paintParticles(context, state, mode);
       else paintLight(context, state, mode);

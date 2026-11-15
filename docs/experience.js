@@ -1,4 +1,4 @@
-import { createWorldEffect } from './world-effects.js?v=world-fx-2';
+import { createWorldEffect } from './world-effects.js?v=world-fx-2a';
 import { playWorldCut } from './world-cut.js?v=world-fx-1';
 import { mountLanding } from './landing.js?v=cut-1';
 import { createScene } from './scenes.js?v=world-fx-2';
