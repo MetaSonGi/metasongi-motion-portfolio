@@ -1,6 +1,7 @@
+import { createWorldEffect } from './world-effects.js?v=world-fx-2';
 import { playWorldCut } from './world-cut.js?v=world-fx-1';
 import { mountLanding } from './landing.js?v=cut-1';
-import { createScene } from './scenes.js?v=ten-worlds-1';
+import { createScene } from './scenes.js?v=world-fx-2';
 import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js?v=ten-worlds-1';
 import { mountExtraWorld } from './worlds-extra.js?v=ten-worlds-1';
 import { mountMotionControls } from './motion-controls.js?v=ten-worlds-1';
@@ -8,6 +9,7 @@ import { mountDesktop } from './desktop.js?v=ten-worlds-1';
 import { projects,profileURL,tags } from './content.js?v=ten-worlds-1';
 const root=document.querySelector('#experience'),menu=document.querySelector('#world-menu'),worlds=worldIds;
 buildWorldMenu();
+const worldEffect = createWorldEffect(document.querySelector('#world-fx'), document.querySelector('#announcement'));
 let current='',dispose=()=>{},paused=matchMedia('(prefers-reduced-motion: reduce)').matches,opener;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const flightPhases=[
@@ -27,7 +29,7 @@ document.querySelector('#choose-world').onclick=openMenu;document.querySelector(
 menu.addEventListener('close',()=>{document.body.style.overflow='';opener?.focus()});
 menu.addEventListener('click',event=>{const r=menu.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)menu.close()});
 document.querySelectorAll('[data-world-choice]').forEach(button=>button.onclick=()=>{menu.close();navigate(button.dataset.worldChoice)});
-function navigate(name,push=true,initialEffect){if(name!=='home'&&!worlds.includes(name))name='space';if(current===name)return;dispose();dispose=()=>{};current=name;document.body.dataset.world=name;document.body.style.overflow='';window.scrollTo({top:0,behavior:'instant'});root.replaceChildren();const index=worlds.indexOf(name);document.querySelector('.world-shortcut').textContent=`${String(index+1).padStart(2,'0')} / 10`;document.querySelector('#world-label').textContent=worldCatalog[index]?.label??'CREATIVE DEVELOPER';document.querySelectorAll('[data-world-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldChoice===name)));if(push){const url=new URL(location.href);url.searchParams.set('world',name);url.hash='';history.pushState({world:name},'',url)}try{localStorage.setItem('metasongi-world-v3',name)}catch{}document.querySelector('#announcement').textContent=`${worldCatalog[index]?.name??'MetaSonGi'} 포트폴리오를 열었습니다.`;
+function navigate(name,push=true,initialEffect){if(name!=='home'&&!worlds.includes(name))name='space';if(current===name)return;dispose();dispose=()=>{};current=name;worldEffect.select(name);document.body.dataset.world=name;document.body.style.overflow='';window.scrollTo({top:0,behavior:'instant'});root.replaceChildren();const index=worlds.indexOf(name);document.querySelector('.world-shortcut').textContent=`${String(index+1).padStart(2,'0')} / 10`;document.querySelector('#world-label').textContent=worldCatalog[index]?.label??'CREATIVE DEVELOPER';document.querySelectorAll('[data-world-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldChoice===name)));if(push){const url=new URL(location.href);url.searchParams.set('world',name);url.hash='';history.pushState({world:name},'',url)}try{localStorage.setItem('metasongi-world-v3',name)}catch{}document.querySelector('#announcement').textContent=`${worldCatalog[index]?.name??'MetaSonGi'} 포트폴리오를 열었습니다.`;
  let sceneDispose;if(name==='home'){document.querySelector('#pause').hidden=false;sceneDispose=mountLanding(root,{isPaused:()=>paused})}else if(name==='workspace'){sceneDispose=mountDesktop(root,{navigate,openMenu});document.querySelector('#pause').hidden=true}else if(name==='space'||name==='journey'){document.querySelector('#pause').hidden=false;sceneDispose=mountJourney(name)}else{document.querySelector('#pause').hidden=true;sceneDispose=mountExtraWorld(root,name,{navigate,openMenu})}
  const labDispose=name==='home'?()=>{}:mountMotionControls(root,name,{trigger:id=>sceneDispose.trigger?.(id),navigate,openMenu});dispose=()=>{labDispose();sceneDispose()};if(initialEffect)sceneDispose.trigger?.(initialEffect);
  if(push&&!reduced.matches&&!paused)playWorldCut(name,worldCatalog[index]?.name??'MetaSonGi');
@@ -55,6 +57,6 @@ function mountJourney(mode){
 document.querySelector('#pause').onclick=()=>{paused=!paused;document.querySelector('#pause').setAttribute('aria-pressed',String(paused));document.querySelector('#pause').textContent=paused?'▷':'Ⅱ';document.querySelector('#pause').setAttribute('aria-label',paused?'자동 모션 재생':'자동 모션 일시정지');document.body.classList.toggle('motion-paused',paused)};
 window.addEventListener('popstate',()=>navigate(new URL(location.href).searchParams.get('world')||'home',false));
 window.addEventListener('keydown',event=>{if(event.altKey&&/^[0-9]$/.test(event.key)){event.preventDefault();if(menu.open)menu.close();navigate(worlds[event.key==='0'?9:Number(event.key)-1])}});
-window.addEventListener('pagehide',()=>dispose(),{once:true});
+window.addEventListener('pagehide',()=>{worldEffect.stop();dispose()},{once:true});
 const requested=new URL(location.href).searchParams.get('world');navigate(requested||'home',false);
 document.querySelector('#pause').setAttribute('aria-pressed',String(paused));document.querySelector('#pause').textContent=paused?'▷':'Ⅱ';document.querySelector('#pause').setAttribute('aria-label',paused?'자동 모션 재생':'자동 모션 일시정지');document.body.classList.toggle('motion-paused',paused);

@@ -522,3 +522,28 @@ body[data-world=home] .case-viewer::backdrop { background: #050916b6; }
   .film-work .landing-section-head { flex-direction: row; align-items: center; }
   .reel-ready .reel-controls [data-play-reel],.reel-ready .reel-controls [data-cut-audio] { min-height: 2.05rem; }
 }
+.film-work .landing-project { border: 0; }
+@media(prefers-reduced-motion:no-preference) {
+  .film-work .reel-ready .project-stage { grid-template-rows: minmax(0,1fr); }
+  .film-work .reel-ready .landing-projects,
+  .film-work .reel-ready .landing-project,
+  .film-work .reel-ready .reel-fx { border-radius: 1rem; }
+  .film-work .reel-ready .reel-controls {
+    position: absolute;
+    z-index: 4;
+    bottom: .8rem;
+    left: clamp(.45rem,1.5vw,1rem);
+    right: clamp(.45rem,1.5vw,1rem);
+    border: 0;
+    border-radius: .95rem;
+    background: #0c1425b8;
+    backdrop-filter: blur(16px);
+  }
+  .film-work .reel-controls::before { display: none; }
+  .film-work .reel-controls>button,
+  .film-work .reel-shots>button { border-color: transparent; }
+  .film-work .landing-project-copy { padding-bottom: clamp(4.6rem,8vw,7.2rem); }
+}
+@media(max-width:720px) and (prefers-reduced-motion:no-preference) {
+  .film-work .landing-project-copy { padding-bottom: 6.7rem; }
+}

@@ -101,3 +101,23 @@
   to { opacity: 1; text-shadow: none; }
 }
 .route-label [data-camera-reset] { background: color-mix(in srgb,currentColor 10%,transparent); }
+#world-fx {
+  padding: .55rem .76rem;
+  color: var(--ink,#d9e5ff);
+  background: color-mix(in srgb,var(--bg,#141a2c) 84%,white 16%);
+  border: 1px solid color-mix(in srgb,var(--world-fx-accent,#abc7ff) 48%,var(--ink,#141a2c) 20%);
+  border-radius: 999px;
+  box-shadow: inset 0 0 1rem color-mix(in srgb,var(--world-fx-accent) 18%,transparent);
+  font: 650 .78rem/1.1 system-ui,sans-serif;
+  white-space: nowrap;
+}
+#world-fx:hover,#world-fx:focus-visible { outline: 2px solid var(--world-fx-accent); outline-offset: 3px; }
+#world-fx[hidden] { display: none; }
+.world-effect-layer { position: fixed; z-index: 28; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+@media(max-width:420px) {
+  #world-fx { padding: .45rem .54rem; font-size: .69rem; }
+  body[data-world=workspace] .world-header { padding-inline: .75rem; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .world-effect-layer,#world-fx { display: none; }
+}
