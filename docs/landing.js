@@ -1,12 +1,13 @@
-import { playIntroSound } from './landing-sfx.js?v=motion-3';
-import { createLandingScene } from './landing-scene.js?v=motion-3';
+import { playIntroSound } from './landing-sfx.js?v=motion-4';
+import { createLandingScene } from './landing-scene.js?v=motion-4';
+import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
 import { projects, profileURL, tags } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
-export function mountLanding(root, { openMenu, isPaused }) {
+export function mountLanding(root, { isPaused }) {
   const scope = createScope();
   root.innerHTML = `
-    <div class="landing">
+    <div class="landing" id="portfolio-top">
       <div class="landing-flight"><section class="landing-hero" aria-labelledby="landing-title">
         <div class="landing-copy">
           <p class="landing-kicker">CREATIVE DEVELOPER</p>
@@ -14,7 +15,7 @@ export function mountLanding(root, { openMenu, isPaused }) {
           <p>목소리를 움직임으로, 코드를 탐험할 수 있는 공간으로.<br>MetaSonGi의 웹 인터랙션과 AI 영상 실험.</p>
           <div class="landing-actions">
             <a href="#selected-work">프로젝트 보기 ↓</a>
-            <button data-landing-worlds>10개 세계 탐험 ↗</button>
+            <a class="landing-secondary" href="#portfolio-worlds">10개 세계 탐험 ↓</a>
           </div>
         </div>
         <button class="landing-preview" type="button" aria-pressed="false">▶ 인트로 · 사운드</button>
@@ -25,23 +26,63 @@ export function mountLanding(root, { openMenu, isPaused }) {
         </div>
       </section></div>
       <section id="selected-work" class="landing-work" aria-labelledby="work-title">
-        <h2 id="work-title">Selected work</h2>
+        <div class="landing-section-head" data-scene-reveal>
+          <h2 id="work-title">Selected<br><em>work.</em></h2>
+          <p>실시간 가상 인물, AI 영상 파이프라인, 웹 인터랙션.</p>
+        </div>
         <div class="landing-projects">${projects.map(project => `
-          <button class="landing-project" data-case="${project.id}">
-            <span class="landing-project-art art-${project.id}" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="landing-kicker">${project.category}</span>
-            <strong>${project.name} <span aria-hidden="true">↗</span></strong>
-            <span>${project.description}</span>
-            <span class="tag-list">${tags(project.stack)}</span>
-          </button>`).join('')}</div>
+          <article class="landing-project scene-${project.id}" data-scene-reveal>
+            <button class="landing-project-art art-${project.id}" type="button" data-case="${project.id}" aria-label="${project.name} 상세 보기">
+              <span class="scene-art" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+              <span class="scene-signal" aria-hidden="true">${Array.from({length:27},(_, index) => `<i style="--height:${24 + Math.round(Math.abs(Math.sin(index * 1.71)) * 71)}%;--delay:-${index * .07}s"></i>`).join('')}</span>
+              <span class="scene-open" aria-hidden="true">↗</span>
+            </button>
+            <div class="landing-project-copy">
+              <p class="landing-kicker">${project.category}</p>
+              <h3>${project.name}</h3>
+              <p>${project.description}</p>
+              <div class="tag-list">${tags(project.stack)}</div>
+              <a href="${project.url}" target="_blank" rel="noopener">소스 코드 ↗</a>
+            </div>
+          </article>`).join('')}</div>
       </section>
-      <footer class="landing-footer">
-        <button data-landing-worlds>10개 세계 탐험 ↗</button>
-        <a href="${profileURL}">GitHub ↗</a>
+      <section id="portfolio-worlds" class="landing-worlds" aria-labelledby="worlds-title">
+        <div class="landing-section-head" data-scene-reveal>
+          <h2 id="worlds-title">Ten<br><em>worlds.</em></h2>
+          <p>각 세계는 레이아웃과 탐색 방식이 다릅니다.</p>
+        </div>
+        <div class="landing-world-grid" data-scene-reveal>${worldCatalog.map(world => `
+          <a href="?world=${world.id}" class="landing-world-link">
+            <span class="world-glyph" aria-hidden="true">${world.icon}</span>
+            <span><strong>${world.name}</strong><small>${world.label}</small></span>
+            <span aria-hidden="true">↗</span>
+          </a>`).join('')}</div>
+      </section>
+      <footer class="landing-footer" data-scene-reveal>
+        <h2>MetaSonGi</h2>
+        <div><a href="${profileURL}">GitHub ↗</a><a href="#portfolio-top">맨 위로 ↑</a></div>
       </footer>
     </div>`;
-  root.querySelectorAll('[data-landing-worlds]').forEach(button => scope.on(button, 'click', openMenu));
   mountProjectViewer(root, scope);
+
+  const reveals = root.querySelectorAll('[data-scene-reveal]');
+  const revealObserver = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('scene-arrived');
+      revealObserver.unobserve(entry.target);
+    }
+  }, { threshold: .13 });
+  reveals.forEach(element => revealObserver.observe(element));
+  scope.add(() => revealObserver.disconnect());
+  root.querySelectorAll('.landing-project-art').forEach(art => {
+    scope.on(art, 'pointermove', event => {
+      if (event.pointerType !== 'mouse') return;
+      const box = art.getBoundingClientRect();
+      art.style.setProperty('--spot-x', ((event.clientX - box.left) / box.width * 100) + '%');
+      art.style.setProperty('--spot-y', ((event.clientY - box.top) / box.height * 100) + '%');
+    }, { passive: true });
+  });
 
   const flight = root.querySelector('.landing-flight');
   const hero = flight.querySelector('.landing-hero');
