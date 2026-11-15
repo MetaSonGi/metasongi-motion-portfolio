@@ -1,3 +1,4 @@
+import { createLandingScene } from './landing-scene.js?v=motion-2';
 import { projects, profileURL, tags } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
@@ -5,7 +6,7 @@ export function mountLanding(root, { openMenu, isPaused }) {
   const scope = createScope();
   root.innerHTML = `
     <div class="landing">
-      <section class="landing-hero" aria-labelledby="landing-title">
+      <div class="landing-flight"><section class="landing-hero" aria-labelledby="landing-title">
         <div class="landing-copy">
           <p class="landing-kicker">CREATIVE DEVELOPER</p>
           <h1 id="landing-title">Interfaces<br><em>in motion.</em></h1>
@@ -19,7 +20,7 @@ export function mountLanding(root, { openMenu, isPaused }) {
           <div class="landing-orbit" aria-hidden="true"></div>
           <canvas aria-hidden="true"></canvas>
         </div>
-      </section>
+      </section></div>
       <section id="selected-work" class="landing-work" aria-labelledby="work-title">
         <h2 id="work-title">Selected work</h2>
         <div class="landing-projects">${projects.map(project => `
@@ -39,94 +40,70 @@ export function mountLanding(root, { openMenu, isPaused }) {
   root.querySelectorAll('[data-landing-worlds]').forEach(button => scope.on(button, 'click', openMenu));
   mountProjectViewer(root, scope);
 
-  const visual = root.querySelector('.landing-visual');
-  const canvas = visual.querySelector('canvas');
-  const context = canvas.getContext('2d');
-  if (!context) return () => scope.dispose();
+  const flight = root.querySelector('.landing-flight');
+  const hero = flight.querySelector('.landing-hero');
+  const visual = hero.querySelector('.landing-visual');
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let scene;
+  try {
+    scene = createLandingScene(visual.querySelector('canvas'));
+    visual.classList.add('has-scene');
+  } catch {
+    flight.classList.add('static-flight');
+    return () => scope.dispose();
+  }
 
-  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-  const particles = Array.from({ length: 3100 }, (_, index) => {
-    const y = 1 - 2 * (index + .5) / 3100;
-    const ring = Math.sqrt(1 - y * y);
-    const angle = index * goldenAngle;
-    return { x: Math.cos(angle) * ring, y, z: Math.sin(angle) * ring, angle };
-  });
-  let width = 0;
-  let height = 0;
   let frame = 0;
-  let yaw = .35;
-  let pitch = -.13;
+  let last = performance.now();
   let pointerX = 0;
   let pointerY = 0;
-  let last = 0;
+  let smoothX = 0;
+  let smoothY = 0;
   let progress = 0;
-  const motion = matchMedia('(prefers-reduced-motion: reduce)');
-
-  function draw(phase) {
-    context.clearRect(0, 0, width, height);
-    context.globalCompositeOperation = "lighter";
-    const radius = Math.min(width, height) * (.348 + phase * .04);
-    const cx = Math.cos(pitch);
-    const sx = Math.sin(pitch);
-    const cy = Math.cos(yaw);
-    const sy = Math.sin(yaw);
-    const colors = ['#a2adff', '#829aff', '#c2caff', '#65daff', '#e1edff', '#fff0c6'];
-    for (const point of particles) {
-      const ripple = 1 + .07 * Math.sin(point.y * 17 + point.angle * .09 + yaw * 3);
-      const x = (point.x * cy - point.z * sy) * ripple;
-      const z = (point.x * sy + point.z * cy) * ripple;
-      const y = point.y * ripple;
-      const depth = z * cx + y * sx;
-      const perspective = 3.5 / (3.5 - depth);
-      const spread = 1 + phase * (.3 + .3 * Math.sin(point.angle));
-      const px = width / 2 + x * radius * perspective * spread;
-      const py = height / 2 + (y * cx - z * sx) * radius * perspective;
-      const light = (Math.sin(point.y * 12 + point.x * 4 + yaw * 4) + 1) / 2;
-      const size = .65 + Math.max(0, depth) * 1.15 + light * .9;
-      context.globalAlpha = .16 + (.2 + .55 * light) * perspective / 1.4;
-      context.fillStyle = colors[Math.min(5, Math.floor(light * 6))];
-      context.fillRect(px, py, size, size);
-    }
-    context.globalAlpha = 1;
-  }
 
   function resize() {
-    const bounds = visual.getBoundingClientRect();
-    const ratio = Math.min(devicePixelRatio, 2);
-    width = bounds.width;
-    height = bounds.height;
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    draw(progress);
+    scene.resize(hero.clientWidth, hero.clientHeight);
+    scene.render(progress, 0, smoothX, smoothY);
   }
 
-  function tick(now) {
-    const dt = Math.min((now - last) / 1000, .04);
+  function render(now) {
+    const dt = Math.min((now - last) / 1000, .05);
     last = now;
-    if (!isPaused() && !motion.matches && !document.hidden && visual.getBoundingClientRect().bottom > 0) {
-      const target = Math.min(1, scrollY / Math.max(1, visual.offsetHeight));
-      progress += (target - progress) * Math.min(1, dt * 5);
-      yaw += dt * (.22 + pointerX * .5 + progress * .4);
-      pitch += (pointerY * .38 - .13 - pitch) * Math.min(1, dt * 4);
-      draw(progress);
+    const rect = flight.getBoundingClientRect();
+    if (!motion.matches && rect.bottom > 0 && !document.hidden) {
+      const scrollRange = Math.max(1, flight.offsetHeight - hero.offsetHeight);
+      const paused = isPaused();
+      progress = paused ? 0 : Math.max(0, Math.min(1, -rect.top / scrollRange));
+      const movement = paused ? 0 : dt;
+      smoothX += (pointerX - smoothX) * movement * 5;
+      smoothY += (pointerY - smoothY) * movement * 5;
+      hero.style.setProperty('--travel', String(progress));
+      scene.render(progress, movement, smoothX, smoothY);
     }
-    frame = requestAnimationFrame(tick);
+    frame = requestAnimationFrame(render);
   }
 
-  scope.on(visual, 'pointermove', event => {
-    const rect = visual.getBoundingClientRect();
+  scope.on(hero, 'pointermove', event => {
+    if (event.pointerType !== 'mouse') return;
+    const rect = hero.getBoundingClientRect();
     pointerX = (event.clientX - rect.left) / rect.width - .5;
     pointerY = (event.clientY - rect.top) / rect.height - .5;
   }, { passive: true });
-  scope.on(visual, 'pointerleave', () => { pointerX = 0; pointerY = 0; });
+  scope.on(hero, 'pointerleave', () => { pointerX = 0; pointerY = 0; });
+  scope.on(motion, 'change', () => {
+    if (!motion.matches) return;
+    progress = 0;
+    hero.style.setProperty('--travel', '0');
+    scene.render(0, 0, 0, 0);
+  });
   const observer = new ResizeObserver(resize);
-  observer.observe(visual);
+  observer.observe(hero);
   resize();
-  frame = requestAnimationFrame(tick);
+  frame = requestAnimationFrame(render);
   scope.add(() => {
     observer.disconnect();
     cancelAnimationFrame(frame);
+    scene.dispose();
   });
   return () => scope.dispose();
 }
