@@ -1,5 +1,5 @@
-import { mountProjectReel } from './project-reel.js?v=fx-1';
-import { playIntroSound } from './landing-sfx.js?v=motion-4';
+import { mountProjectReel } from './project-reel.js?v=cut-1';
+import { playIntroSound } from './landing-sfx.js?v=cut-1';
 import { createLandingScene } from './landing-scene.js?v=motion-4';
 import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
 import { projects, profileURL } from './content.js?v=ten-worlds-1';
@@ -43,14 +43,17 @@ export function mountLanding(root, { isPaused }) {
             </div>
           </article>`).join('')}
             <canvas class="reel-fx" aria-hidden="true"></canvas>
+            <div class="reel-cut-light" aria-hidden="true"></div>
           </div>
           <div class="reel-controls" role="group" aria-label="프로젝트 장면 선택">
+            <button type="button" data-play-reel aria-label="연속 재생" aria-pressed="false" title="세 장면 연속 재생">▶</button>
             <button type="button" data-previous aria-label="이전 장면">←</button>
             <div class="reel-shots">
               ${['가상 인물','AI 영상','10개 세계'].map((label,index) => `<button type="button" data-shot="${index}"><span>${label}</span></button>`).join('')}
             </div>
             <button type="button" data-next aria-label="다음 장면">→</button>
             <button type="button" data-replay-fx aria-label="장면 효과 다시 재생" title="효과 다시 재생">⟲</button>
+            <button type="button" data-cut-audio aria-label="장면 효과음" aria-pressed="false">소리 꺼짐</button>
           </div>
         </div></div>
       </section>
