@@ -545,5 +545,5 @@ body[data-world=home] .case-viewer::backdrop { background: #050916b6; }
   .film-work .landing-project-copy { padding-bottom: clamp(4.6rem,8vw,7.2rem); }
 }
 @media(max-width:720px) and (prefers-reduced-motion:no-preference) {
-  .film-work .landing-project-copy { padding-bottom: 6.7rem; }
+  .film-work .landing-project-copy { padding-bottom: 8rem; }
 }
