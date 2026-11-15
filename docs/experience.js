@@ -1,4 +1,4 @@
-import { mountLanding } from './landing.js?v=motion-4';
+import { mountLanding } from './landing.js?v=reel-1';
 import { createScene } from './scenes.js?v=ten-worlds-1';
 import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js?v=ten-worlds-1';
 import { mountExtraWorld } from './worlds-extra.js?v=ten-worlds-1';

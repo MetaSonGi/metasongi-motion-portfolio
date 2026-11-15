@@ -1,3 +1,4 @@
+import { mountProjectReel } from './project-reel.js?v=reel-1';
 import { playIntroSound } from './landing-sfx.js?v=motion-4';
 import { createLandingScene } from './landing-scene.js?v=motion-4';
 import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
@@ -28,10 +29,10 @@ export function mountLanding(root, { isPaused }) {
       <section id="selected-work" class="landing-work" aria-labelledby="work-title">
         <div class="landing-section-head" data-scene-reveal>
           <h2 id="work-title">Selected<br><em>work.</em></h2>
-          <p>실시간 가상 인물, AI 영상 파이프라인, 웹 인터랙션.</p>
+          <p>스크롤하거나 아래 타임라인을 눌러 프로젝트 장면을 넘겨보세요.</p>
         </div>
-        <div class="landing-projects">${projects.map(project => `
-          <article class="landing-project scene-${project.id}" data-scene-reveal>
+        <div class="project-reel"><div class="project-stage"><div class="landing-projects">${projects.map(project => `
+          <article class="landing-project scene-${project.id}">
             <button class="landing-project-art art-${project.id}" type="button" data-case="${project.id}" aria-label="${project.name} 상세 보기">
               <span class="scene-art" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
               <span class="scene-signal" aria-hidden="true">${Array.from({length:27},(_, index) => `<i style="--height:${24 + Math.round(Math.abs(Math.sin(index * 1.71)) * 71)}%;--delay:-${index * .07}s"></i>`).join('')}</span>
@@ -45,6 +46,14 @@ export function mountLanding(root, { isPaused }) {
               <a href="${project.url}" target="_blank" rel="noopener">소스 코드 ↗</a>
             </div>
           </article>`).join('')}</div>
+          <div class="reel-controls" role="group" aria-label="프로젝트 장면 선택">
+            <button type="button" data-previous aria-label="이전 장면">←</button>
+            <div class="reel-shots">
+              ${['가상 인물','AI 영상','10개 세계'].map((label,index) => `<button type="button" data-shot="${index}"><span>${label}</span></button>`).join('')}
+            </div>
+            <button type="button" data-next aria-label="다음 장면">→</button>
+          </div>
+        </div></div>
       </section>
       <section id="portfolio-worlds" class="landing-worlds" aria-labelledby="worlds-title">
         <div class="landing-section-head" data-scene-reveal>
@@ -64,6 +73,7 @@ export function mountLanding(root, { isPaused }) {
       </footer>
     </div>`;
   mountProjectViewer(root, scope);
+  mountProjectReel(root, scope);
 
   const reveals = root.querySelectorAll('[data-scene-reveal]');
   const revealObserver = new IntersectionObserver(entries => {
