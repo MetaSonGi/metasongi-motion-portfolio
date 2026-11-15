@@ -5,6 +5,8 @@ import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
 import { projects, profileURL, tags } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
+const projectArt = { vrm: 'vrm', pixelle: 'glass', motion: 'orbit' };
+
 export function mountLanding(root, { isPaused }) {
   const scope = createScope();
   root.innerHTML = `
@@ -26,24 +28,23 @@ export function mountLanding(root, { isPaused }) {
           <canvas aria-hidden="true"></canvas>
         </div>
       </section></div>
-      <section id="selected-work" class="landing-work" aria-labelledby="work-title">
+      <section id="selected-work" class="landing-work film-work" aria-labelledby="work-title">
         <div class="landing-section-head" data-scene-reveal>
           <h2 id="work-title">Selected<br><em>work.</em></h2>
           <p>스크롤하거나 아래 타임라인을 눌러 프로젝트 장면을 넘겨보세요.</p>
         </div>
         <div class="project-reel"><div class="project-stage"><div class="landing-projects">${projects.map(project => `
           <article class="landing-project scene-${project.id}">
-            <button class="landing-project-art art-${project.id}" type="button" data-case="${project.id}" aria-label="${project.name} 상세 보기">
-              <span class="scene-art" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-              <span class="scene-signal" aria-hidden="true">${Array.from({length:27},(_, index) => `<i style="--height:${24 + Math.round(Math.abs(Math.sin(index * 1.71)) * 71)}%;--delay:-${index * .07}s"></i>`).join('')}</span>
-              <span class="scene-open" aria-hidden="true">↗</span>
-            </button>
+            <div class="project-frame" aria-hidden="true"><img src="art/${projectArt[project.id]}.jpg" alt="" decoding="async"></div>
             <div class="landing-project-copy">
               <p class="landing-kicker">${project.category}</p>
               <h3>${project.name}</h3>
               <p>${project.description}</p>
               <div class="tag-list">${tags(project.stack)}</div>
-              <a href="${project.url}" target="_blank" rel="noopener">소스 코드 ↗</a>
+              <div class="project-ctas">
+                <button type="button" data-case="${project.id}">프로젝트 상세 ↗</button>
+                <a href="${project.url}" target="_blank" rel="noopener">소스 코드 ↗</a>
+              </div>
             </div>
           </article>`).join('')}</div>
           <div class="reel-controls" role="group" aria-label="프로젝트 장면 선택">
@@ -85,15 +86,6 @@ export function mountLanding(root, { isPaused }) {
   }, { threshold: .13 });
   reveals.forEach(element => revealObserver.observe(element));
   scope.add(() => revealObserver.disconnect());
-  root.querySelectorAll('.landing-project-art').forEach(art => {
-    scope.on(art, 'pointermove', event => {
-      if (event.pointerType !== 'mouse') return;
-      const box = art.getBoundingClientRect();
-      art.style.setProperty('--spot-x', ((event.clientX - box.left) / box.width * 100) + '%');
-      art.style.setProperty('--spot-y', ((event.clientY - box.top) / box.height * 100) + '%');
-    }, { passive: true });
-  });
-
   const flight = root.querySelector('.landing-flight');
   const hero = flight.querySelector('.landing-hero');
   const visual = hero.querySelector('.landing-visual');
