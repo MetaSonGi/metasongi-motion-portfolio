@@ -1,7 +1,7 @@
 import { mountProjectReel } from './project-reel.js?v=cut-1';
 import { playIntroSound } from './landing-sfx.js?v=cut-1';
 import { createLandingScene } from './landing-scene.js?v=cinema-1';
-import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
+import { worldCatalog } from './world-catalog.js?v=experiments-1';
 import { projects, profileURL } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
@@ -20,7 +20,7 @@ export function mountLanding(root, { isPaused }) {
           </h1>
           <div class="landing-actions">
             <a href="#selected-work">프로젝트 보기 ↓</a>
-            <a class="landing-secondary" href="#portfolio-worlds">10개 세계 탐험 ↓</a>
+            <a class="landing-secondary" href="#portfolio-worlds">${worldCatalog.length}개 세계 탐험 ↓</a>
           </div>
         </div>
         <div class="landing-rail">
@@ -67,7 +67,7 @@ export function mountLanding(root, { isPaused }) {
       </section>
       <section id="portfolio-worlds" class="landing-worlds" aria-labelledby="worlds-title">
         <div class="landing-section-head" data-scene-reveal>
-          <h2 id="worlds-title">Ten <em>worlds.</em></h2>
+          <h2 id="worlds-title">Twenty <em>worlds.</em></h2>
           <p>각 세계는 레이아웃과 탐색 방식이 다릅니다.</p>
         </div>
         <div class="landing-world-grid" data-scene-reveal>${worldCatalog.map(world => `
@@ -84,6 +84,11 @@ export function mountLanding(root, { isPaused }) {
     </div>`;
   mountProjectViewer(root, scope);
   mountProjectReel(root, scope);
+  if (location.hash === '#portfolio-worlds') {
+    const worlds = root.querySelector('#portfolio-worlds');
+    const frame = requestAnimationFrame(() => worlds.scrollIntoView());
+    scope.add(() => cancelAnimationFrame(frame));
+  }
 
   const reveals = root.querySelectorAll('[data-scene-reveal]');
   const revealObserver = new IntersectionObserver(entries => {
