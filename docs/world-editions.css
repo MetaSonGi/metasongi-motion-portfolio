@@ -1,0 +1,199 @@
+/* The ten editions share controls and motion preferences. Each world keeps its own visual language. */
+.edition-control {
+  padding: .65rem .9rem;
+  border: 1px solid currentColor;
+  border-radius: .25rem;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: .72rem;
+  line-height: 1.2;
+}
+.edition-control[aria-pressed=true] { background: var(--ink); color: var(--bg); }
+
+#orbit-frame, #journey-dusk { position: absolute; top: 110px; right: 6%; z-index: 6; }
+.orbital-matte {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 16vw #01030b;
+  border-block: calc(var(--approach, 0) * 3.5svh) solid #02040b;
+}
+.wide-frame .orbital-matte { border-block-width: 7svh; }
+.space .story-panel h1 {
+  font-size: clamp(2.8rem, 8vw, 9rem);
+  letter-spacing: -.08em;
+  line-height: .84;
+  text-shadow: 0 .1em 1em #02040b;
+}
+.space .story-panel[aria-hidden=false] { z-index: 2; }
+.space .story-stage[data-chapter="1"] .scene-vignette { background-color: #3a208622; }
+.space .story-stage[data-chapter="2"] .scene-vignette { background-color: #00677d25; }
+.space .story-stage[data-chapter="3"] .scene-vignette { background-color: #a84e171c; }
+
+.at-dusk .scene-layer { filter: sepia(.42) saturate(1.5) hue-rotate(-25deg) brightness(.83); }
+.journey .story-stage { background: #eeefe0; }
+.journey .story-stage.at-dusk { background: #d8a784; }
+.journey .story-panel h1 { text-wrap: balance; }
+.journey .story-panel.active h1 { text-shadow: 0 2px 24px #fff9; }
+.journey .scene-layer, .space .scene-vignette { transition: filter .65s, background-color .65s; }
+
+body[data-world=workspace] .os-shell { background: #11141b; }
+.desktop-field {
+  background:
+    radial-gradient(ellipse at 77% 18%, #5845a972, transparent 48%),
+    radial-gradient(ellipse at 60% 100%, #20585795, transparent 58%), #10131a;
+}
+.desktop-wallpaper strong { color: #ada2f256; }
+.os-switch-dialog {
+  width: min(36rem, calc(100% - 2rem));
+  max-height: min(75svh, 40rem);
+  padding: clamp(1rem, 4vw, 2.3rem);
+  color: #f0ebff;
+  background: #1b1b2a;
+  border: 1px solid #ab9ddc70;
+  border-radius: .75rem;
+}
+.os-switch-dialog::backdrop { background: #090914a9; backdrop-filter: blur(9px); }
+.os-switch-dialog h2 { margin: 0 0 1rem; font: 600 1.5rem/1.2 system-ui; }
+.os-switch-list { display: grid; gap: .45rem; }
+.os-switch-list button, .os-switch-close {
+  padding: .65rem 1rem;
+  border-radius: .35rem;
+  background: #302a44;
+  color: #f0ebff;
+  text-align: left;
+}
+.os-switch-list button:hover, .os-switch-close:hover { background: #534579; }
+.os-switch-close { margin-top: 1rem; }
+
+.gallery-world { background: radial-gradient(ellipse at 66% 46%, #59483b, transparent 63%), #211c19; }
+.gallery-intro h1 { font-size: clamp(4rem, 7vw, 8rem); }
+.gallery-intro p, .exhibit-caption p { color: #d2c6b8; }
+.exhibit-art { border-width: clamp(.4rem, 1vw, .85rem); }
+.exhibit-art::after {
+  background:
+    radial-gradient(circle at var(--light-x, 62%) var(--light-y, 42%), #fffa, transparent 52%),
+    linear-gradient(120deg,#fff2,transparent 60%,#0003);
+  mix-blend-mode: soft-light;
+}
+.exhibit-art .object-sculpture {
+  transform: translate(-50%, -50%) perspective(600px) rotateY(var(--tilt-x, 0deg)) rotateX(var(--tilt-y, 0deg));
+  transition: transform .18s ease-out;
+}
+
+.journal-world { background: #f5eee0; color: #24211d; }
+.journal-title h1 { font-size: clamp(5rem, 13vw, 14rem); line-height: .76; }
+.journal-title h1 em { color: #aa3d27; }
+.journal-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem 1.25rem;
+  border-block: 1px solid #69584a55;
+  padding: .75rem 0;
+}
+.journal-index a { font-weight: 650; color: #544337; padding: .25rem .15rem; }
+.journal-index a[aria-current=location], .journal-index a:hover { color: #982f1c; text-decoration: underline; text-underline-offset: .3em; }
+.journal-story { scroll-margin-top: 7.5rem; }
+.journal-story:focus-visible { outline: 2px solid #982f1c; outline-offset: 3px; }
+
+.console-world {
+  --phosphor: #8cefab;
+  background: radial-gradient(ellipse at 55% 40%, #12311d66, transparent 67%), #050d08;
+}
+.console-world[data-phosphor=amber] {
+  --phosphor: #ffc879;
+  background: radial-gradient(ellipse at 55% 40%, #69421455, transparent 65%), #110c07;
+}
+.console-screen h1, .console-screen h1 span, .console-world #console-output b,
+.console-world .console-top button, .console-world form>span { color: var(--phosphor); }
+.console-world .console-screen h1 { font-size: clamp(1.7rem, 4.8vw, 5rem); text-shadow: 0 0 .6em color-mix(in srgb, var(--phosphor) 30%, transparent); }
+.console-top-actions { display: flex; flex-wrap: wrap; justify-content: end; gap: .3rem; }
+.console-world #console-palette { border-color: currentColor; }
+.console-world[data-phosphor=amber] #console-rain { mix-blend-mode: screen; }
+
+.atlas-map { background: radial-gradient(ellipse at center, #e0eef0, #b1cbd8); }
+.atlas-edges path { stroke: #48697c65; }
+.atlas-edges path.linked { stroke: #096c7c; stroke-width: 3; stroke-dasharray: 3 7; }
+.atlas-node.selected .node-halo { stroke: #087a91; stroke-width: 2; }
+.atlas-intro h1 em { color: #176977; }
+
+.bento-title h1 { line-height: .9; }
+.bento-title h1 em { color: #7759bd; }
+.bento-pad-actions { display: flex; align-items: center; gap: .65rem; }
+.bento-pad #bento-export { background: #26231d; color: #fff1dc; border-color: #26231d; }
+.bento-grid > .bento-code { background: #362753; color: #f7f0ff; }
+.bento-grid > .bento-code pre { color: #f7f0ff; }
+.bento-grid > .bento-code :is(span,small,button) { color: #e4d5ff; }
+
+.noir-frame { background: #0b0b0b; }
+.noir-backdrop {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(ellipse at 75% 45%,#545454,#0b0b0b 69%);
+  background-position: center;
+  background-size: cover;
+  filter: grayscale(1);
+}
+.noir-frame[data-shot="1"] .noir-backdrop { background-image: linear-gradient(90deg,#050505 5%,#050505cd 38%,#05050510 100%),url('art/vrm.jpg'); }
+.noir-frame[data-shot="2"] .noir-backdrop { background-image: linear-gradient(90deg,#050505 5%,#050505cd 38%,#05050510 100%),url('art/glass.jpg'); }
+.noir-frame[data-shot="3"] .noir-backdrop { background-image: linear-gradient(90deg,#050505 5%,#050505cd 38%,#05050510 100%),url('art/orbit.jpg'); }
+.noir-scene h1 { color: #f4f3ed; text-shadow: 0 0 .3em #0007; }
+.noir-scene p, .noir-scene>span, .noir-scene>button { color: #e6e2da; }
+.noir-scene.cut-in h1 { animation: edition-projector .72s cubic-bezier(.13,.69,.24,1); }
+@keyframes edition-projector {
+  from { letter-spacing: .04em; transform: scaleY(.7); filter: blur(8px); }
+  to { letter-spacing: -.07em; transform: scaleY(1); filter: blur(0); }
+}
+
+.garden-world {
+  --garden-surface: #eeefdf;
+  --garden-ink: #36533c;
+  --garden-accent: #5c7948;
+  background-color: var(--garden-surface);
+  color: var(--garden-ink);
+}
+.garden-world.in-autumn { --garden-surface: #f4e4c8; --garden-ink: #653824; --garden-accent: #9c492f; }
+.garden-world :is(h1 em,.garden-hero>p,.garden-hero>span,.garden-footer h2 em,.garden-seeds i) { color: var(--garden-accent); }
+.garden-world .garden-leaf { background: var(--garden-surface); color: var(--garden-accent); }
+.garden-world #growing-stem { stroke: var(--garden-accent); }
+.garden-world .garden-flower {
+  background: radial-gradient(ellipse at center,color-mix(in srgb,var(--garden-accent) 23%,transparent),transparent 66%);
+}
+.garden-world .garden-flower > i { border-color: var(--garden-accent); }
+.garden-world .garden-card { color: var(--garden-ink); border-color: color-mix(in srgb,var(--garden-accent) 45%,transparent); }
+.garden-world .garden-card:focus-visible { opacity: 1; }
+.garden-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.15rem; }
+.garden-actions button { background: var(--garden-surface); color: var(--garden-ink); border: 1px solid currentColor; padding: .65rem .9rem; border-radius: 2rem; font-size: .72rem; }
+.garden-actions button[aria-pressed=true] { background: var(--garden-ink); color: var(--garden-surface); }
+
+@media (prefers-reduced-motion: no-preference) {
+  body:not(.motion-paused) .space .story-panel.active h1,
+  body:not(.motion-paused) .journey .story-panel.active h1 { animation: edition-rise .8s cubic-bezier(.16,1,.3,1) both; }
+  .orbital-matte { transition: box-shadow .5s; }
+  .garden-world { transition: background-color .55s, color .55s; }
+}
+@keyframes edition-rise {
+  from { clip-path: inset(0 0 95%); transform: translateY(.35em) scaleY(.93); opacity: .55; }
+  to { clip-path: inset(-15% -15% -20%); transform: none; opacity: 1; }
+}
+
+@media (max-width: 760px) {
+  #orbit-frame, #journey-dusk { top: 82px; right: 6%; padding: .45rem .65rem; font-size: .65rem; }
+  .space .story-panel h1 { font-size: clamp(2.45rem, 10.5vw, 4.5rem); }
+  .journey .chapter-nav { top: auto; bottom: 177px; }
+  .gallery-intro h1 { font-size: clamp(3rem, 13vw, 4.6rem); }
+  .journal-title h1 { font-size: clamp(3.8rem, 15vw, 7rem); letter-spacing: -.065em; }
+  .journal-index { font-size: .72rem; }
+  .os-taskbar .taskbar-apps { gap: 4px; }
+  .os-taskbar .taskbar-apps button { min-width: 48px; padding-inline: 6px; }
+  .noir-frame[data-shot] .noir-backdrop { background-position: 57% center; }
+  .garden-hero h1 { font-size: clamp(3rem, 14vw, 5.8rem); letter-spacing: -.07em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exhibit-art .object-sculpture { transform: translate(-50%, -50%); transition: none; }
+  .noir-scene.cut-in h1 { animation: none; }
+  .journey .scene-layer, .space .scene-vignette { transition: none; }
+  .garden-world .garden-card { opacity: 1; translate: none; }
+}
