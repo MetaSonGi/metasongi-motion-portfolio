@@ -1,6 +1,6 @@
 import { createWorldEffect } from './world-effects.js?v=world-fx-2a';
 import { playWorldCut } from './world-cut.js?v=world-fx-1';
-import { mountLanding } from './landing.js?v=cut-1';
+import { mountLanding } from './landing.js?v=cinema-1';
 import { createScene } from './scenes.js?v=world-fx-2';
 import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js?v=ten-worlds-1';
 import { mountExtraWorld } from './worlds-extra.js?v=ten-worlds-1';

@@ -1,6 +1,6 @@
 import { mountProjectReel } from './project-reel.js?v=cut-1';
 import { playIntroSound } from './landing-sfx.js?v=cut-1';
-import { createLandingScene } from './landing-scene.js?v=motion-4';
+import { createLandingScene } from './landing-scene.js?v=cinema-1';
 import { worldCatalog } from './world-catalog.js?v=ten-worlds-1';
 import { projects, profileURL } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
@@ -13,11 +13,19 @@ export function mountLanding(root, { isPaused }) {
     <div class="landing" id="portfolio-top">
       <div class="landing-flight"><section class="landing-hero" aria-labelledby="landing-title">
         <div class="landing-copy">
-          <h1 id="landing-title">Interfaces<br><em>in motion.</em></h1>
+          <p class="landing-kicker">Creative development · Motion portfolio</p>
+          <h1 id="landing-title" aria-label="Interfaces in motion.">
+            <span class="type-mask" aria-hidden="true"><span>Interfaces</span></span>
+            <span class="type-mask" aria-hidden="true"><em>in motion<span>.</span></em></span>
+          </h1>
           <div class="landing-actions">
             <a href="#selected-work">프로젝트 보기 ↓</a>
             <a class="landing-secondary" href="#portfolio-worlds">10개 세계 탐험 ↓</a>
           </div>
+        </div>
+        <div class="landing-rail">
+          <a href="#selected-work"><span aria-hidden="true">↓</span> 스크롤로 탐색</a>
+          <div class="landing-track" aria-hidden="true"></div>
         </div>
         <button class="landing-preview" type="button" aria-pressed="false">▶ 인트로 · 사운드</button>
         <span class="sr-only" role="status" data-intro-status></span>
@@ -28,7 +36,7 @@ export function mountLanding(root, { isPaused }) {
       </section></div>
       <section id="selected-work" class="landing-work film-work" aria-labelledby="work-title">
         <div class="landing-section-head" data-scene-reveal>
-          <h2 id="work-title">Works.</h2>
+          <h2 id="work-title">Selected <em>work.</em></h2>
           <p>스크롤로 장면 전환 ↓</p>
         </div>
         <div class="project-reel"><div class="project-stage"><div class="landing-projects">${projects.map(project => `
@@ -59,7 +67,7 @@ export function mountLanding(root, { isPaused }) {
       </section>
       <section id="portfolio-worlds" class="landing-worlds" aria-labelledby="worlds-title">
         <div class="landing-section-head" data-scene-reveal>
-          <h2 id="worlds-title">Ten<br><em>worlds.</em></h2>
+          <h2 id="worlds-title">Ten <em>worlds.</em></h2>
           <p>각 세계는 레이아웃과 탐색 방식이 다릅니다.</p>
         </div>
         <div class="landing-world-grid" data-scene-reveal>${worldCatalog.map(world => `
@@ -167,7 +175,8 @@ export function mountLanding(root, { isPaused }) {
     if (!motion.matches && rect.bottom > 0 && !document.hidden) {
       const scrollRange = Math.max(1, flight.offsetHeight - hero.offsetHeight);
       const paused = isPaused();
-      progress = paused ? 0 : Math.max(0, Math.min(1, -rect.top / scrollRange));
+      const target = paused ? 0 : Math.max(0, Math.min(1, -rect.top / scrollRange));
+      progress = paused ? 0 : progress + (target - progress) * (1 - Math.exp(-dt * 14));
       const movement = paused ? 0 : dt;
       smoothX += (pointerX - smoothX) * movement * 5;
       smoothY += (pointerY - smoothY) * movement * 5;

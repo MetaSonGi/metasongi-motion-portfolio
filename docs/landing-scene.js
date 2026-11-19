@@ -10,7 +10,24 @@ export function createLandingScene(canvas) {
   const camera = new THREE.PerspectiveCamera(43, 1, .08, 100);
   const sculpture = new THREE.Group();
   scene.add(sculpture);
-  const geometry = new THREE.TorusKnotGeometry(1.76, .46, 210, 18, 2, 3);
+  const geometry = new THREE.TorusKnotGeometry(1.77, .61, 340, 36, 2, 3);
+  const positions = geometry.getAttribute('position');
+  // Flatten each tube cross-section into a twisting ribbon.
+  for (let index = 0; index <= 340; index++) {
+    const u = index / 340 * Math.PI * 4;
+    const radial = 1.77 * (1 + .5 * Math.cos(1.5 * u));
+    const center = new THREE.Vector3(radial * Math.cos(u), radial * Math.sin(u), .885 * Math.sin(1.5 * u));
+    const twist = u * 1.5 + .68;
+    const axis = new THREE.Vector3(Math.cos(u + twist), Math.sin(u + twist), .68).normalize();
+    for (let side = 0; side <= 36; side++) {
+      const vertex = index * 37 + side;
+      const point = new THREE.Vector3().fromBufferAttribute(positions, vertex);
+      const depth = point.sub(center).dot(axis);
+      point.addScaledVector(axis, -.79 * depth).add(center);
+      positions.setXYZ(vertex, point.x, point.y, point.z);
+    }
+  }
+  geometry.computeVertexNormals();
   const surface = new THREE.ShaderMaterial({
     uniforms: { time: { value: 0 }, travel: { value: 0 }, impact: { value: 0 } },
     vertexShader: `
@@ -31,13 +48,14 @@ export function createLandingScene(canvas) {
         vec3 mirror = reflect(-view, n);
         float rim = pow(1. - max(0., dot(n, view)), 2.0);
         float sheet = pow(max(0., dot(mirror, normalize(vec3(-.65,.65,.55)))), 12.);
-        float blue = pow(max(0., dot(mirror, normalize(vec3(.85,-.25,.48)))), 4.);
-        float gold = pow(max(0., dot(mirror, normalize(vec3(.2,-.85,.45)))), 22.);
-        float stripes = pow(.5 + .5 * sin(20. * point.y + 8. * point.x - time * 1.4), 12.);
-        vec3 color = vec3(.025,.045,.13) + rim * vec3(.14,.36,.9);
-        color += sheet * vec3(.72,.88,1.) + blue * vec3(.12,.37,.95);
-        color += gold * vec3(.95,.48,.17) + stripes * (.1 + travel * .42) * vec3(.22,.63,1.);
-        color += impact * (rim * .65 + stripes * .4) * vec3(.55,.78,1.);
+        float edge = pow(max(0., dot(mirror, normalize(vec3(.85,-.25,.48)))), 4.);
+        float lime = pow(max(0., dot(mirror, normalize(vec3(.2,-.85,.45)))), 22.);
+        float bands = pow(.5 + .5 * sin(mirror.y * 13. + mirror.x * 3.), 8.);
+        float wave = pow(.5 + .5 * sin(5. * point.y + 3. * point.x - time * 2.), 13.);
+        vec3 color = vec3(.045,.057,.048);
+        color += sheet * vec3(1.,1.,.9) + edge * vec3(.45,.51,.4);
+        color += bands * vec3(.58,.64,.54) * (.25 + .75 * rim);
+        color += (lime * .8 + rim * .31 + wave * (travel + impact) * .36) * vec3(.72,1.,.24);
         gl_FragColor = vec4(color, 1.);
       }`,
   });
@@ -46,8 +64,8 @@ export function createLandingScene(canvas) {
   const rings = new THREE.Group();
   sculpture.add(rings);
   const ringGeometry = new THREE.TorusGeometry(3.45, .011, 5, 180);
-  const ringMaterial = new THREE.MeshBasicMaterial({ color: 0x70a4ff, transparent: true, opacity: .42 });
-  for (let index = 0; index < 3; index++) {
+  const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xabd95b, transparent: true, opacity: .42 });
+  for (let index = 0; index < 2; index++) {
     const ring = new THREE.Mesh(ringGeometry, ringMaterial);
     ring.rotation.set(.45 + index * .47, .2 + index * .82, .3);
     rings.add(ring);
@@ -56,11 +74,11 @@ export function createLandingScene(canvas) {
   const debris = new THREE.Group();
   scene.add(debris);
   const shardGeometry = new THREE.OctahedronGeometry(1);
-  const shardMaterials = [0x4d8dff, 0xaed5ff, 0x192454, 0xffbc79].map(color =>
+  const shardMaterials = [0x69785d, 0xd9ff79, 0x303b2f, 0xbfc5b9].map(color =>
     new THREE.MeshStandardMaterial({ color, metalness: .72, roughness: .27, flatShading: true }));
   const debrisPositions = [];
   const goldenAngle = Math.PI * (3 - Math.sqrt(5));
-  for (let index = 0; index < 86; index++) {
+  for (let index = 0; index < 48; index++) {
     const angle = index * goldenAngle;
     const radius = 3.3 + (index % 11) * .43;
     const shard = new THREE.Mesh(shardGeometry, shardMaterials[index % shardMaterials.length]);
@@ -70,8 +88,8 @@ export function createLandingScene(canvas) {
     debris.add(shard);
     debrisPositions.push({ angle, radius, z: Math.sin(index * 12.47) * 5 });
   }
-  scene.add(new THREE.HemisphereLight(0xabcfff, 0x272447, 2));
-  const key = new THREE.PointLight(0x5599ff, 130, 23);
+  scene.add(new THREE.HemisphereLight(0xeaffc1, 0x253026, 2));
+  const key = new THREE.PointLight(0xd2ff82, 130, 23);
   key.position.set(2, 4, 5);
   scene.add(key);
 
@@ -83,7 +101,7 @@ export function createLandingScene(canvas) {
   }
   const starGeometry = new THREE.BufferGeometry();
   starGeometry.setAttribute('position', new THREE.BufferAttribute(starlight, 3));
-  const starMaterial = new THREE.PointsMaterial({ color: 0x9abfff, size: .047, transparent: true, opacity: .62 });
+  const starMaterial = new THREE.PointsMaterial({ color: 0xb1ba9a, size: .047, transparent: true, opacity: .62 });
   const stars = new THREE.Points(starGeometry, starMaterial);
   scene.add(stars);
 
@@ -92,7 +110,7 @@ export function createLandingScene(canvas) {
 
   return {
     resize(width, height) {
-      compact = width < 740;
+      compact = width <= 740;
       camera.aspect = width / Math.max(1, height);
       camera.updateProjectionMatrix();
       renderer.setSize(width, height, false);
@@ -100,9 +118,9 @@ export function createLandingScene(canvas) {
     render(progress, dt, pointerX, pointerY, impact = 0) {
       time += dt;
       const approach = progress * progress * (3 - 2 * progress);
-      sculpture.position.set(compact ? 0 : 2.75 * (1 - approach * .8), compact ? -1.65 : .04, 0);
-      sculpture.scale.setScalar(compact ? .63 : 1);
-      sculpture.rotation.set(.22 + time * .14 + pointerY * .2, -.32 + time * .23 + pointerX * .4, -.36 + approach * 1.35);
+      sculpture.position.set(compact ? 0 : 2.48 * (1 - approach * .75), compact ? -2.1 : .02, 0);
+      sculpture.scale.setScalar(compact ? .92 : 1.16);
+      sculpture.rotation.set(.22 + time * .14 + pointerY * .2, -.32 + time * .23 + pointerX * .4, -.46 + approach * 1.65);
       rings.rotation.y = time * -.24;
       surface.uniforms.time.value = time;
       surface.uniforms.travel.value = approach;
@@ -117,7 +135,7 @@ export function createLandingScene(canvas) {
         shard.rotation.y += dt * .28;
       });
       stars.rotation.z = time * .013 + approach * .19;
-      camera.position.set(pointerX * .7 + approach * sculpture.position.x, pointerY * -.47 + approach * sculpture.position.y, (compact ? 12.4 : 11.4) - approach * 10.6 - impact * 1.2);
+      camera.position.set(pointerX * .7 + approach * sculpture.position.x, pointerY * -.47 + approach * sculpture.position.y, (compact ? 12.1 : 11.4) - approach * 9.2 - impact * .75);
       camera.lookAt(camera.position.x * .78, camera.position.y * .84, -7);
       renderer.render(scene, camera);
     },
