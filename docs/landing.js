@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { worldCatalog } from './world-catalog.js?v=experiments-1';
+import { worldCatalog } from './world-catalog.js?v=ten-1';
 import { projects, profileURL } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
@@ -106,7 +106,7 @@ function template() {
 
       <section class="cine-worlds" id="portfolio-worlds" data-chap-name="04 / ${worldCatalog.length} worlds" aria-labelledby="worlds-title">
         <div class="head">
-          <h2 class="disp" id="worlds-title"><span class="line">${worldCatalog.length === 20 ? 'Twenty' : worldCatalog.length}</span><span class="line o">Worlds.</span></h2>
+          <h2 class="disp" id="worlds-title"><span class="line">${({10:'Ten',20:'Twenty'})[worldCatalog.length] ?? worldCatalog.length}</span><span class="line o">Worlds.</span></h2>
           <p>각 세계는 레이아웃도, 탐색 방식도, 감정도 다릅니다. 하나를 골라 들어가 보세요.</p>
         </div>
         <ul class="cine-wlist" data-wlist>${worlds}</ul>
