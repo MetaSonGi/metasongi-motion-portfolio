@@ -1,7 +1,7 @@
 import { experimentCatalog } from './experiment-catalog.js?v=1';
 import { createExperimentScene } from './experiment-scene.js?v=1';
 import { projects } from './content.js?v=ten-worlds-1';
-import { worldCatalog } from './world-catalog.js?v=ten-1';
+import { worldCatalog } from './world-catalog.js?v=ten-2';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
 const art = ['vrm', 'glass', 'orbit'].map(name => 'art/' + name + '.jpg');

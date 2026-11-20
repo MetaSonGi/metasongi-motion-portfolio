@@ -61,13 +61,13 @@ export function mountMotion(root) {
   cleanups.push(() => seen.disconnect());
   const scan = () => {
     root.querySelectorAll(HEADLINES).forEach(h => {
-      if (h.closest(SKIP_HEADLINE) || h.dataset.kx) return;
+      if (h.closest(SKIP_HEADLINE) || h.closest('[data-no-kx]') || h.dataset.kx) return;
       splitHeadline(h);
       h.classList.add('kx-head');
       seen.observe(h);
     });
     root.querySelectorAll(REVEAL).forEach((el, n) => {
-      if (el.classList.contains('kx-r') || getComputedStyle(el).position === 'fixed') return;
+      if (el.classList.contains('kx-r') || el.closest('[data-no-kx]') || getComputedStyle(el).position === 'fixed') return;
       el.classList.add('kx-r');
       el.style.setProperty('--kd', (n % 6) * 70 + 'ms');
       seen.observe(el);

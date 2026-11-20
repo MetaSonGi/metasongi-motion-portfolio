@@ -1,9 +1,9 @@
 // Product-launch layer shared by every world except home:
 // a floating product nav, a cinematic "model reveal" intro, a tech-spec sheet
 // and colour swatches for the world lineup menu.
-import { worldCatalog } from './world-catalog.js?v=ten-1';
+import { worldCatalog } from './world-catalog.js?v=ten-2';
 import { projects } from './content.js?v=ten-worlds-1';
-import { mountMotion } from './world-motion.js?v=2';
+import { mountMotion } from './world-motion.js?v=3';
 
 const colors = {
   space:['#7b5cff','#4de2ff'], journey:['#ffd36b','#ff8a5c'], workspace:['#c9d1ff','#7b8cff'], gallery:['#f1efe8','#b9b4a8'],
