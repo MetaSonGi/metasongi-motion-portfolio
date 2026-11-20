@@ -153,38 +153,88 @@ function openSpecs() {
   sheet.showModal();
 }
 
-function playIntro(world) {
+// "Edit cut" transition: a full-screen edit-suite reveal of the next world.
+// REC HUD + running timecode, kinetic name with an RGB-split glitch, a
+// timeline of all twenty clips with the playhead cutting from the previous
+// world to this one, then a venetian-blind slice wipe out to the live world.
+function playIntro(world, from) {
   document.querySelector('.pn-intro')?.remove();
   const intro = document.createElement('div');
   intro.className = 'pn-intro';
   intro.setAttribute('aria-hidden', 'true');
   paint(intro, world.id);
+  const to = worldCatalog.indexOf(world);
+  const start = from >= 0 ? from : to;
   let i = 0;
   const name = world.name.split(' ').map(word => `<span class="pn-w">${[...word].map(ch => `<span class="pn-c" style="--i:${i++}">${esc(ch)}</span>`).join('')}</span>`).join(' ');
-  intro.innerHTML = `<i class="pn-orb"></i><i class="pn-ring"></i>
-    <div class="pn-intro-top"><span>METASONGI · ${esc(world.kind)}</span><span>MODEL ${world.number} / ${total}</span></div>
-    <div class="pn-intro-core"><span class="pn-intro-eyebrow">Introducing</span><h2>${name}</h2><p>${esc(world.label)}</p></div>
-    <dl class="pn-intro-specs"><div><dt>KIND</dt><dd>${esc(world.kind)}</dd></div><div><dt>INTERACTION</dt><dd>${esc(world.interaction)}</dd></div><div><dt>SERIES</dt><dd>${Number(world.number) <= 10 ? 'WORLDS' : 'EXPERIMENTS'}</dd></div></dl>
+  const clips = worldCatalog.map((w, k) => `<i class="${k === to ? 'is-on' : ''}" style="--c:${colors[w.id][0]}"></i>`).join('');
+  const fromName = from >= 0 && from !== to ? worldCatalog[from].name : 'COLD OPEN';
+  intro.innerHTML = `<i class="pn-orb"></i><i class="pn-ring"></i><i class="pn-flash"></i><i class="pn-scan"></i>
+    <div class="pn-intro-top"><span class="pn-rec"><b></b>REC</span><span class="pn-tc">00:00:00:00</span><span>CUT ${pad(start + 1)} → ${pad(to + 1)}</span><span>MODEL ${world.number} / ${total}</span></div>
+    <i class="pn-frame" aria-hidden="true"></i>
+    <div class="pn-intro-core"><span class="pn-intro-eyebrow">${esc(fromName)} <em>→</em> Introducing</span><h2 data-text="${esc(world.name)}">${name}</h2><p>${esc(world.label)}</p></div>
+    <div class="pn-intro-foot">
+      <dl class="pn-intro-specs"><div><dt>KIND</dt><dd>${esc(world.kind)}</dd></div><div><dt>INTERACTION</dt><dd>${esc(world.interaction)}</dd></div><div><dt>SERIES</dt><dd>${Number(world.number) <= 10 ? 'WORLDS' : 'EXPERIMENTS'}</dd></div></dl>
+      <div class="pn-timeline" style="--from:${start};--to:${to};--n:${total}"><div class="pn-clips">${clips}</div><i class="pn-head"><span>${world.number}</span></i></div>
+    </div>
     <span class="pn-intro-skip">CLICK TO ENTER ↘</span>`;
   document.body.append(intro);
+  const tc = intro.querySelector('.pn-tc'), t0 = performance.now();
+  let raf = requestAnimationFrame(function tick(now) {
+    const f = Math.floor((now - t0) / (1000 / 24)), sec = Math.floor(f / 24);
+    tc.textContent = `00:00:${pad(sec)}:${pad(f % 24)}`;
+    raf = requestAnimationFrame(tick);
+  });
   const leave = () => {
     if (intro.classList.contains('pn-out')) return;
     intro.classList.add('pn-out');
-    setTimeout(() => intro.remove(), 900);
+    setTimeout(() => { cancelAnimationFrame(raf); intro.remove(); }, 950);
   };
-  const timer = setTimeout(leave, 2300);
+  const timer = setTimeout(leave, 2500);
   const skip = () => { clearTimeout(timer); leave(); };
   intro.addEventListener('pointerdown', skip);
   addEventListener('keydown', skip, { once: true });
   addEventListener('wheel', skip, { once: true, passive: true });
-  return () => { clearTimeout(timer); removeEventListener('keydown', skip); removeEventListener('wheel', skip); intro.remove(); };
+  return () => { clearTimeout(timer); cancelAnimationFrame(raf); removeEventListener('keydown', skip); removeEventListener('wheel', skip); intro.remove(); };
 }
 
+// Lineup: a kinetic list of all twenty worlds with a live preview pane.
 export function paintLineup() {
-  document.querySelectorAll('[data-world-choice]').forEach(button => paint(button, button.dataset.worldChoice));
+  const menu = document.querySelector('#world-menu');
+  const choices = [...menu.querySelectorAll('[data-world-choice]')];
+  choices.forEach((button, index) => {
+    paint(button, button.dataset.worldChoice);
+    button.style.setProperty('--i', index);
+    button.dataset.num = pad(index + 1);
+  });
+  const preview = document.createElement('aside');
+  preview.className = 'lineup-preview';
+  preview.setAttribute('aria-hidden', 'true');
+  menu.querySelector('.world-options').after(preview);
+  const show = id => {
+    const world = worldCatalog.find(w => w.id === id);
+    if (!world || preview.dataset.id === id) return;
+    preview.dataset.id = id;
+    paint(preview, id);
+    preview.innerHTML = `<i class="lp-orb"></i><span class="lp-num">${world.number}</span>
+      <div class="lp-copy"><span class="lp-kind">${esc(world.kind)} · ${Number(world.number) <= 10 ? 'WORLDS' : 'EXPERIMENTS'}</span>
+      <b>${esc(world.name)}</b><p>${esc(world.label)} — ${esc(world.description)}</p>
+      <div class="lp-chips">${specList(world).map(x => `<span>${esc(x)}</span>`).join('')}</div>
+      <span class="lp-enter">ENTER WORLD ↗</span></div>`;
+  };
+  const pick = event => { const id = event.target.closest?.('[data-world-choice]')?.dataset.worldChoice; if (id) show(id); };
+  menu.addEventListener('pointerover', pick);
+  menu.addEventListener('focusin', pick);
+  new MutationObserver(() => {
+    if (!menu.open) return;
+    const active = menu.querySelector('[data-world-choice][aria-pressed=true]') || choices[0];
+    preview.dataset.id = '';
+    show(active.dataset.worldChoice);
+  }).observe(menu, { attributes: true, attributeFilter: ['open'] });
 }
 
 export function mountProductShell(name, { root, navigate, openMenu, intro }) {
+  const from = worldCatalog.findIndex(w => w.id === current);
   current = name;
   api = { navigate, openMenu };
   if (!nav) buildNav();
@@ -194,7 +244,7 @@ export function mountProductShell(name, { root, navigate, openMenu, intro }) {
   nav.querySelector('.pn-num').textContent = `${world.number}/${total}`;
   nav.querySelector('.pn-name').textContent = world.name;
   queueProgress();
-  const stopIntro = intro ? playIntro(world) : () => {};
+  const stopIntro = intro ? playIntro(world, from) : () => {};
   const stopControls = root ? mountControls(root) : () => {};
   return () => {
     stopIntro();
