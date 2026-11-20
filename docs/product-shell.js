@@ -3,6 +3,7 @@
 // and colour swatches for the world lineup menu.
 import { worldCatalog } from './world-catalog.js?v=ten-1';
 import { projects } from './content.js?v=ten-worlds-1';
+import { mountMotion } from './world-motion.js?v=2';
 
 const colors = {
   space:['#7b5cff','#4de2ff'], journey:['#ffd36b','#ff8a5c'], workspace:['#c9d1ff','#7b8cff'], gallery:['#f1efe8','#b9b4a8'],
@@ -85,7 +86,8 @@ function mountControls(root) {
     el.append(dot);
     dot.addEventListener('animationend', () => dot.remove());
   }, { signal });
-  return () => { controller.abort(); observer.disconnect(); clearInterval(poll); cancelAnimationFrame(queued); };
+  const stopMotion = mountMotion(root);
+  return () => { stopMotion(); controller.abort(); observer.disconnect(); clearInterval(poll); cancelAnimationFrame(queued); };
 }
 
 function at(offset) {
