@@ -4,6 +4,7 @@ import { mountWorldEdition } from './world-editions.js?v=1';
 import { createWorldEffect } from './world-effects.js?v=world-fx-2a';
 import { playWorldCut } from './world-cut.js?v=world-fx-1';
 import { mountLanding } from './landing.js?v=cine-1';
+import { mountProductShell,paintLineup } from './product-shell.js?v=1';
 import { createScene } from './scenes.js?v=world-fx-2';
 import { worldCatalog,worldIds,buildWorldMenu } from './world-catalog.js?v=experiments-1';
 import { mountExtraWorld } from './worlds-extra.js?v=experiments-1';
@@ -11,7 +12,7 @@ import { mountMotionControls } from './motion-controls.js?v=ten-worlds-1';
 import { mountDesktop } from './desktop.js?v=experiments-1';
 import { projects,profileURL,tags } from './content.js?v=ten-worlds-1';
 const root=document.querySelector('#experience'),menu=document.querySelector('#world-menu'),worlds=worldIds;
-buildWorldMenu();
+buildWorldMenu();paintLineup();
 const experiments = new Set(experimentCatalog.map(world => world.id));
 const worldEffect = createWorldEffect(document.querySelector('#world-fx'), document.querySelector('#announcement'));
 let current='',dispose=()=>{},paused=matchMedia('(prefers-reduced-motion: reduce)').matches,opener;
@@ -36,8 +37,9 @@ document.querySelectorAll('[data-world-choice]').forEach(button=>button.onclick=
 function navigate(name,push=true,initialEffect){if(name!=='home'&&!worlds.includes(name))name='space';if(current===name)return;dispose();dispose=()=>{};current=name;worldEffect.select(name);document.body.dataset.world=name;document.body.style.overflow='';window.scrollTo({top:0,behavior:'instant'});root.replaceChildren();const index=worlds.indexOf(name);document.querySelector('.world-shortcut').textContent=`${String(index+1).padStart(2,'0')} / ${worlds.length}`;document.querySelector('#world-label').textContent=worldCatalog[index]?.label??'CREATIVE DEVELOPER';document.querySelectorAll('[data-world-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.worldChoice===name)));if(push){const url=new URL(location.href);url.searchParams.set('world',name);url.hash='';history.pushState({world:name},'',url)}try{localStorage.setItem('metasongi-world-v3',name)}catch{}document.querySelector('#announcement').textContent=`${worldCatalog[index]?.name??'MetaSonGi'} 포트폴리오를 열었습니다.`;
  let sceneDispose;if(name==='home'){document.querySelector('#pause').hidden=false;sceneDispose=mountLanding(root,{isPaused:()=>paused})}else if(experiments.has(name)){document.querySelector('#pause').hidden=false;sceneDispose=mountExperiment(root,name,()=>paused)}else if(name==='workspace'){sceneDispose=mountDesktop(root,{navigate,openMenu});document.querySelector('#pause').hidden=true}else if(name==='space'||name==='journey'){document.querySelector('#pause').hidden=false;sceneDispose=mountJourney(name)}else{document.querySelector('#pause').hidden=true;sceneDispose=mountExtraWorld(root,name,{navigate,openMenu})}
  const editionDispose=mountWorldEdition(root,name);
- const labDispose=(name==='home'||experiments.has(name))?()=>{}:mountMotionControls(root,name,{trigger:id=>sceneDispose.trigger?.(id),navigate,openMenu});dispose=()=>{labDispose();editionDispose();sceneDispose()};if(initialEffect)sceneDispose.trigger?.(initialEffect);
- if(push&&!reduced.matches&&!paused)playWorldCut(name,worldCatalog[index]?.name??'MetaSonGi');
+ const shellDispose=name==='home'?()=>{}:mountProductShell(name,{navigate,openMenu,intro:!reduced.matches&&!paused});
+ const labDispose=(name==='home'||experiments.has(name))?()=>{}:mountMotionControls(root,name,{trigger:id=>sceneDispose.trigger?.(id),navigate,openMenu});dispose=()=>{shellDispose();labDispose();editionDispose();sceneDispose()};if(initialEffect)sceneDispose.trigger?.(initialEffect);
+ if(push&&name==='home'&&!reduced.matches&&!paused)playWorldCut(name,worldCatalog[index]?.name??'MetaSonGi');
  root.classList.remove('entering');void root.offsetWidth;root.classList.add('entering');
 }
 root.addEventListener('click',event=>{const link=event.target.closest('.landing-world-link,.experiment-next');if(!link||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;event.preventDefault();navigate(new URL(link.href).searchParams.get('world'))});
