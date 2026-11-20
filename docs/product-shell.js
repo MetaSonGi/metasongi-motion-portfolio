@@ -19,6 +19,61 @@ const specList = world => String(world.interaction).split(/\s*·\s*/).filter(Boo
 
 let current = '', api = null, nav, sheet, progressFrame = 0;
 
+// In-world controls: tag the choice/command elements of every world so
+// product-shell.css can give them one product-grade look and feel.
+const CONTROL = [
+  '.experiment-tools button:not(.chroma-ink)', '.scene-effects button', '.character-controls button', '.route-label button',
+  '.noir-transport button', '.noir-scene>button', '.console-shortcuts button', '.console-top-actions button', '.atlas-map-controls button',
+  '.bento-pad-actions button', '.bento-stack button', '.garden-actions button', '.edition-control', '.other-world',
+  '.world-footer button', '.journal-footer button', '.gallery-bottom button', '.atlas-inspector a', '.journal-editor a',
+].join(',');
+const CTA = '.experiment-footer a, .story-link, .bento-footer a, .garden-footer a, .journal-footer a, .sidebar-github';
+const CARD = '.bento-project, .garden-card, .finder-project, .exhibit-art';
+const SWATCH = '.chroma-ink, .pad-colors button';
+
+function syncRange(input) {
+  const min = Number(input.min || 0), max = Number(input.max || 100);
+  input.style.setProperty('--v', ((Number(input.value) - min) / ((max - min) || 1)) * 100 + '%');
+}
+
+function enhance(root) {
+  const tag = (selector, cls) => root.querySelectorAll(selector).forEach(el => el.classList.add(cls));
+  tag(CONTROL, 'pc-btn');
+  tag(CTA, 'pc-cta');
+  tag(CARD, 'pc-card');
+  tag(SWATCH, 'pc-swatch');
+  tag('select', 'pc-select');
+  root.querySelectorAll('.chapter-nav').forEach(el => el.classList.add('pc-steps'));
+  root.querySelectorAll('input[type=range]').forEach(input => { input.classList.add('pc-range'); syncRange(input); });
+  root.querySelectorAll('.experiment-tools, .scene-effects, .character-controls, .noir-transport, .console-shortcuts, .atlas-map-controls, .bento-pad-actions')
+    .forEach(group => group.classList.add('pc-group'));
+}
+
+function mountControls(root) {
+  const controller = new AbortController(), { signal } = controller;
+  enhance(root);
+  let queued = 0;
+  const observer = new MutationObserver(() => {
+    if (queued) return;
+    queued = requestAnimationFrame(() => { queued = 0; enhance(root); });
+  });
+  observer.observe(root, { childList: true, subtree: true });
+  root.addEventListener('input', event => { if (event.target.matches?.('input[type=range]')) syncRange(event.target); }, { signal });
+  // programmatic value changes (scroll-driven sliders) don't fire input
+  const poll = setInterval(() => root.querySelectorAll('.pc-range').forEach(syncRange), 120);
+  root.addEventListener('pointerdown', event => {
+    const el = event.target.closest('.pc-btn,.pc-cta');
+    if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const r = el.getBoundingClientRect(), dot = document.createElement('i');
+    dot.className = 'pc-ripple';
+    dot.style.left = event.clientX - r.left + 'px';
+    dot.style.top = event.clientY - r.top + 'px';
+    el.append(dot);
+    dot.addEventListener('animationend', () => dot.remove());
+  }, { signal });
+  return () => { controller.abort(); observer.disconnect(); clearInterval(poll); cancelAnimationFrame(queued); };
+}
+
 function at(offset) {
   const index = worldCatalog.findIndex(w => w.id === current);
   return worldCatalog[(index + offset + total) % total];
@@ -129,7 +184,7 @@ export function paintLineup() {
   document.querySelectorAll('[data-world-choice]').forEach(button => paint(button, button.dataset.worldChoice));
 }
 
-export function mountProductShell(name, { navigate, openMenu, intro }) {
+export function mountProductShell(name, { root, navigate, openMenu, intro }) {
   current = name;
   api = { navigate, openMenu };
   if (!nav) buildNav();
@@ -140,8 +195,10 @@ export function mountProductShell(name, { navigate, openMenu, intro }) {
   nav.querySelector('.pn-name').textContent = world.name;
   queueProgress();
   const stopIntro = intro ? playIntro(world) : () => {};
+  const stopControls = root ? mountControls(root) : () => {};
   return () => {
     stopIntro();
+    stopControls();
     if (sheet.open) sheet.close();
     document.body.style.removeProperty('--pa');
     document.body.style.removeProperty('--pb');

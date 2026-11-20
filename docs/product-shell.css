@@ -122,3 +122,49 @@ html body:not([data-world=home]) .pn-mid{position:relative;display:flex;align-it
   #world-menu .world-options{grid-template-columns:1fr 1fr}#world-menu .world-thumbnail{height:80px}#world-menu .choice-copy p{display:none}
 }
 @media (prefers-reduced-motion:reduce){.pn-intro{display:none}.pn-specs[open]{animation:none}html body:not([data-world=home]) .world-header .signature-icon{animation:none}}
+
+/* ---------- in-world controls: one product-grade control system ---------- */
+html body:not([data-world=home]) #experience .pc-group{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+html body:not([data-world=home]) #experience .pc-btn{overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 16px;border-radius:999px;border:1px solid #ffffff1f;background:#0b0b0ee6;color:#f4f2ec;font:600 12.5px/1 var(--pn-font);letter-spacing:.01em;text-decoration:none;white-space:nowrap;opacity:1;box-shadow:0 6px 18px #0000002e,inset 0 1px 0 #ffffff17;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:pointer;transition:transform .35s var(--pn-ease),background .25s,color .25s,box-shadow .35s,border-color .25s}
+html body:not([data-world=home]) #experience .pc-btn:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--pa) 70%,transparent);box-shadow:0 10px 26px #0000003d,0 0 0 4px color-mix(in srgb,var(--pa) 22%,transparent)}
+html body:not([data-world=home]) #experience .pc-btn:active{transform:scale(.96)}
+html body:not([data-world=home]) #experience .pc-btn:is([aria-pressed=true],.active,[aria-current=true],[aria-selected=true]){background:linear-gradient(120deg,var(--pa),var(--pb));color:#060608;border-color:transparent;box-shadow:0 8px 28px color-mix(in srgb,var(--pa) 45%,transparent)}
+html body:not([data-world=home]) #experience .pc-btn:focus-visible,html body:not([data-world=home]) #experience .pc-cta:focus-visible,html body:not([data-world=home]) #experience .pc-card:focus-visible{outline:2px solid var(--pa);outline-offset:3px}
+
+html body:not([data-world=home]) #experience .pc-cta{overflow:hidden;display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 8px 0 20px;border-radius:999px;border:0;background:#f4f2ec;color:#060608;font:700 13px/1 var(--pn-font);text-decoration:none;letter-spacing:.01em;box-shadow:0 10px 30px #00000030;transition:transform .35s var(--pn-ease),background .3s,box-shadow .35s}
+html body:not([data-world=home]) #experience .pc-cta::after{content:'→';display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:linear-gradient(120deg,var(--pa),var(--pb));color:#060608;font-size:14px;transition:transform .35s var(--pn-ease)}
+html body:not([data-world=home]) #experience .pc-cta:hover{transform:translateY(-2px);box-shadow:0 14px 36px #0000003d,0 0 0 4px color-mix(in srgb,var(--pa) 25%,transparent)}
+html body:not([data-world=home]) #experience .pc-cta:hover::after{transform:translateX(3px) rotate(-45deg)}
+
+html body:not([data-world=home]) #experience .pc-card{transition:transform .5s var(--pn-ease),box-shadow .5s var(--pn-ease),outline-color .3s;outline:1.5px solid transparent;outline-offset:4px}
+html body:not([data-world=home]) #experience .pc-card:hover{outline-color:color-mix(in srgb,var(--pa) 80%,transparent);box-shadow:0 24px 60px -18px color-mix(in srgb,var(--pa) 55%,transparent)}
+html body:not([data-world=home]) #experience .pc-card:active{transform:scale(.985)}
+html body:not([data-world=home]) #experience .pc-swatch{transition:transform .3s var(--pn-ease),box-shadow .3s}
+html body:not([data-world=home]) #experience .pc-swatch:hover{transform:scale(1.12)}
+html body:not([data-world=home]) #experience .pc-swatch[aria-pressed=true]{box-shadow:0 0 0 3px #0b0b0e,0 0 0 5px var(--pa)}
+
+html body:not([data-world=home]) #experience .pc-range{-webkit-appearance:none;appearance:none;height:26px;min-width:120px;background:transparent;cursor:pointer;accent-color:var(--pa)}
+html body:not([data-world=home]) #experience .pc-range::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--pa),var(--pb)) 0/var(--v,0%) 100% no-repeat,#7f7f8a40}
+html body:not([data-world=home]) #experience .pc-range::-moz-range-track{height:6px;border-radius:999px;background:#7f7f8a40}
+html body:not([data-world=home]) #experience .pc-range::-moz-range-progress{height:6px;border-radius:999px;background:linear-gradient(90deg,var(--pa),var(--pb))}
+html body:not([data-world=home]) #experience .pc-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:#f4f2ec;border:0;box-shadow:0 0 0 4px color-mix(in srgb,var(--pa) 45%,transparent),0 4px 12px #0006;transition:transform .25s var(--pn-ease),box-shadow .25s}
+html body:not([data-world=home]) #experience .pc-range::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#f4f2ec;border:0;box-shadow:0 0 0 4px color-mix(in srgb,var(--pa) 45%,transparent),0 4px 12px #0006}
+html body:not([data-world=home]) #experience .pc-range:hover::-webkit-slider-thumb,html body:not([data-world=home]) #experience .pc-range:active::-webkit-slider-thumb{transform:scale(1.18);box-shadow:0 0 0 7px color-mix(in srgb,var(--pa) 35%,transparent),0 4px 12px #0006}
+html body:not([data-world=home]) #experience .pc-range:focus-visible{outline:2px solid var(--pa);outline-offset:4px;border-radius:999px}
+
+html body:not([data-world=home]) #experience .pc-select{-webkit-appearance:none;appearance:none;min-height:40px;padding:0 40px 0 16px;border-radius:999px;border:1px solid #ffffff1f;background:#0b0b0ee6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23f4f2ec' stroke-width='1.6'/%3E%3C/svg%3E") right 16px center no-repeat;color:#f4f2ec;font:600 13px/1 var(--pn-font);cursor:pointer;box-shadow:0 6px 18px #0000002e}
+html body:not([data-world=home]) #experience .pc-select:hover{border-color:var(--pa)}
+
+/* positioned for the ripple, but never over a world's own absolute layout */
+:where(#experience .pc-btn,#experience .pc-cta){position:relative}
+
+/* chapter steppers (space / journey) */
+html body:not([data-world=home]) #experience .pc-steps button{opacity:.55;transition:opacity .3s,transform .35s var(--pn-ease)}
+html body:not([data-world=home]) #experience .pc-steps button:hover{opacity:.9;transform:translateX(4px)}
+html body:not([data-world=home]) #experience .pc-steps button.active{opacity:1}
+html body:not([data-world=home]) #experience .pc-steps button>span{transition:background .3s,color .3s,border-color .3s,box-shadow .3s}
+html body:not([data-world=home]) #experience .pc-steps button.active>span{background:linear-gradient(120deg,var(--pa),var(--pb));color:#060608;border-color:transparent;box-shadow:0 0 18px color-mix(in srgb,var(--pa) 60%,transparent)}
+
+.pc-ripple{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:color-mix(in srgb,var(--pa) 55%,#fff);pointer-events:none;animation:pc-ripple .6s ease-out forwards;mix-blend-mode:screen}
+@keyframes pc-ripple{to{transform:scale(22);opacity:0}}
+@media (prefers-reduced-motion:reduce){html body:not([data-world=home]) #experience :is(.pc-btn,.pc-cta,.pc-card){transition:none}}
