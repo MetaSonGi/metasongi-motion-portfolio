@@ -1,6 +1,7 @@
 import { experimentCatalog } from './experiment-catalog.js?v=1';
 import { createExperimentScene } from './experiment-scene.js?v=1';
 import { projects } from './content.js?v=ten-worlds-1';
+import { worldCatalog } from './world-catalog.js?v=ten-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 
 const art = ['vrm', 'glass', 'orbit'].map(name => 'art/' + name + '.jpg');
@@ -219,7 +220,8 @@ export function mountExperiment(root, world, isPaused) {
   const scope = createScope();
   const index = experimentCatalog.findIndex(item => item.id === world);
   const item = experimentCatalog[index];
-  const next = experimentCatalog[(index + 1) % experimentCatalog.length];
+  const at = worldCatalog.findIndex(w => w.id === world);
+  const next = worldCatalog[(at + 1) % worldCatalog.length];
   root.innerHTML = `<div class="experiment" data-experiment="${world}">
     <section class="experiment-stage" aria-labelledby="experiment-title">
       <header class="experiment-copy"><p>EXPERIMENT ${item.number}</p><h1 id="experiment-title">${item.name}</h1><p>${item.label}</p></header>

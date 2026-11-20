@@ -175,6 +175,61 @@ html body:not([data-world=home]) .pn-mid{position:relative;display:flex;align-it
 @keyframes lp-num{from{transform:translateY(40%);opacity:0}}
 @media (max-width:820px){#world-menu[open]{grid-template-columns:1fr;grid-template-areas:'head' 'list' 'foot'}.lineup-preview{display:none}#world-menu .choice-copy small{display:none}}
 
+
+/* ---------- world personalities ---------- */
+:root{--pn-serif:'Instrument Serif',Georgia,serif}
+.pn-intro-motto{margin-top:clamp(12px,2vw,24px)!important;font:400 italic clamp(20px,2.6vw,36px)/1.1 var(--pn-serif)!important;color:var(--pn-ink)!important;letter-spacing:-.01em}
+.pn-intro-motto+p{margin-top:10px!important;font-size:clamp(12px,1.1vw,15px)!important;color:#f4f2ec99!important}
+.pn-intro h2::before,.pn-intro h2::after{display:none}
+.pn-intro:is([data-persona=cosmic],[data-persona=mono],[data-persona=film]) h2{animation:pn-rgb .5s 1.3s steps(1) both}
+.pn-intro.pn-out:is([data-persona=cosmic],[data-persona=mono],[data-persona=film]) h2{animation:pn-rgb .35s steps(1) both}
+@keyframes pn-rgb{0%{filter:drop-shadow(-7px 0 #ff2a55) drop-shadow(7px 0 #2af0ff);transform:translateX(3px)}25%{filter:drop-shadow(5px 2px #ff2a55) drop-shadow(-5px -2px #2af0ff);transform:translateX(-4px) skewX(-6deg)}50%{filter:drop-shadow(-3px 0 #ff2a55) drop-shadow(3px 0 #2af0ff);transform:none}75%{filter:drop-shadow(6px -1px #ff2a55) drop-shadow(-6px 1px #2af0ff);transform:translateX(2px) skewX(4deg)}100%{filter:none;transform:none}}
+/* cosmic: ultra-wide stretch */
+.pn-intro[data-persona=cosmic] .pn-c{animation-name:pn-char-wide}
+@keyframes pn-char-wide{0%{transform:translateY(105%) scaleY(1.6);font-variation-settings:'wdth' 62;opacity:0}55%{opacity:1}100%{transform:none;font-variation-settings:'wdth' 125;opacity:1}}
+.pn-intro[data-persona=cosmic] h2{letter-spacing:-.02em}
+/* serif: editorial italic voice */
+.pn-intro[data-persona=serif] h2{font-family:var(--pn-serif);font-weight:400;text-transform:none;letter-spacing:-.03em;line-height:.9}
+.pn-intro[data-persona=serif] .pn-w:last-child{font-style:italic}
+.pn-intro[data-persona=serif] .pn-c{background:linear-gradient(180deg,#fff 40%,var(--pa) 140%);-webkit-background-clip:text;background-clip:text;animation-name:pn-char-serif}
+@keyframes pn-char-serif{0%{transform:translateY(40%) rotate(4deg);filter:blur(12px);opacity:0}100%{transform:none;filter:none;opacity:1}}
+.pn-intro[data-persona=serif] .pn-ring{border-style:dashed}
+/* mono: terminal voice with a cursor */
+.pn-intro[data-persona=mono] h2{font-family:var(--pn-mono);font-weight:500;font-size:clamp(40px,8.5vw,140px);letter-spacing:-.04em}
+.pn-intro[data-persona=mono] .pn-c{animation:pn-type .01s steps(1) both;animation-delay:calc(.3s + var(--i) * 55ms)}
+.pn-intro[data-persona=mono] h2>.pn-w:last-child::after{content:'_';color:var(--pa);animation:pn-blink .8s steps(2) infinite}
+@keyframes pn-type{from{opacity:0}to{opacity:1}}
+.pn-intro[data-persona=mono] .pn-orb{border-radius:0;filter:blur(90px);opacity:.4}
+/* soft: bouncy, playful letters */
+.pn-intro[data-persona=soft] h2{text-transform:none;font-weight:900;letter-spacing:-.05em}
+.pn-intro[data-persona=soft] .pn-c{animation:pn-bounce .9s cubic-bezier(.34,1.8,.5,1) both;animation-delay:calc(.25s + var(--i) * 45ms)}
+@keyframes pn-bounce{0%{transform:translateY(-120%) scale(.6) rotate(-12deg);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
+.pn-intro[data-persona=soft] .pn-ring{border-width:2px;border-color:color-mix(in srgb,var(--pa) 50%,transparent)}
+/* product: calm, premium launch */
+.pn-intro[data-persona=product] h2{text-transform:none;font-weight:700;letter-spacing:-.05em;font-size:clamp(50px,10vw,170px)}
+.pn-intro[data-persona=product] .pn-c{animation:pn-rise 1.2s var(--pn-ease) both;animation-delay:calc(.3s + var(--i) * 18ms)}
+@keyframes pn-rise{from{transform:translateY(30%);opacity:0;filter:blur(8px)}}
+.pn-intro[data-persona=product] .pn-orb{background:radial-gradient(circle at 35% 30%,#fff,var(--pa) 25%,var(--pb) 55%,#060608 75%);filter:blur(6px);opacity:.8;width:min(46vw,460px)}
+/* film: black & white, letterbox, countdown */
+.pn-intro[data-persona=film]{filter:grayscale(1) contrast(1.15)}
+.pn-intro[data-persona=film]::before,.pn-intro[data-persona=film]::after{content:'';position:absolute;left:0;right:0;height:11vh;background:#000;z-index:3;animation:pn-letterbox 1s var(--pn-ease) both}
+.pn-intro[data-persona=film]::before{top:0}.pn-intro[data-persona=film]::after{bottom:0;animation-name:pn-letterbox-b}
+@keyframes pn-letterbox{from{transform:translateY(-100%)}}
+@keyframes pn-letterbox-b{from{transform:translateY(100%)}}
+.pn-intro[data-persona=film] .pn-ring{border:2px solid #ffffff40;background:conic-gradient(#ffffff26 0deg,transparent 0);animation:pn-countdown 1.4s linear both}
+@keyframes pn-countdown{0%{background:conic-gradient(#ffffff30 0deg,transparent 0deg)}100%{background:conic-gradient(#ffffff30 360deg,transparent 0deg)}}
+.pn-intro[data-persona=film] h2{font-weight:900;font-size:clamp(46px,8.4vw,140px)}
+.pn-intro[data-persona=film] .pn-intro-top,.pn-intro[data-persona=film] .pn-intro-foot{z-index:4}
+/* lineup + spec sheet speak with the same voice */
+#world-menu .world-choice[data-persona=serif]:is(:hover,:focus-visible) h3{font-family:var(--pn-serif);font-weight:400;font-style:italic;letter-spacing:-.02em}
+#world-menu .world-choice[data-persona=mono]:is(:hover,:focus-visible) h3{font-family:var(--pn-mono);font-weight:500;letter-spacing:-.05em}
+#world-menu .world-choice[data-persona=soft]:is(:hover,:focus-visible) h3{font-weight:900;letter-spacing:-.05em}
+.lineup-preview[data-persona=serif] .lp-copy b{font-family:var(--pn-serif);font-weight:400;font-style:italic;letter-spacing:-.02em}
+.lineup-preview[data-persona=mono] .lp-copy b{font-family:var(--pn-mono);font-weight:500;letter-spacing:-.05em}
+.lineup-preview[data-persona=film]{filter:grayscale(1)}
+.lp-motto{font:400 italic clamp(18px,1.8vw,24px)/1.15 var(--pn-serif);color:var(--pn-ink)}
+.pn-motto{font:400 italic clamp(22px,2.4vw,32px)/1.1 var(--pn-serif)!important}
+
 /* ---------- responsive / reduced motion ---------- */
 @media (max-width:900px){html body:not([data-world=home]) .pn-link,html body:not([data-world=home]) .pn-sep,.pn-num{display:none}}
 @media (max-width:640px){

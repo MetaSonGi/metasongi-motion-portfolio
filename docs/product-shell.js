@@ -1,7 +1,7 @@
 // Product-launch layer shared by every world except home:
 // a floating product nav, a cinematic "model reveal" intro, a tech-spec sheet
 // and colour swatches for the world lineup menu.
-import { worldCatalog } from './world-catalog.js?v=experiments-1';
+import { worldCatalog } from './world-catalog.js?v=ten-1';
 import { projects } from './content.js?v=ten-worlds-1';
 
 const colors = {
@@ -12,6 +12,20 @@ const colors = {
   cutroom:['#ff4d4d','#ffd0d0'], frequency:['#4dffdf','#7b5cff'], chromagrid:['#ff3df2','#3dffb0'], splitlight:['#f1efe8','#d4ff3a'],
 };
 const total = worldCatalog.length;
+// Each world's personality: a type voice for its reveal and a one-line motto.
+const persona = {
+  space:{style:'cosmic',motto:'Scroll is the engine.'},
+  journey:{style:'soft',motto:'Small steps, big ideas.'},
+  workspace:{style:'mono',motto:'Everything is a window.'},
+  gallery:{style:'serif',motto:'Work, framed as objects.'},
+  editorial:{style:'serif',motto:'Read the build, line by line.'},
+  atlas:{style:'mono',motto:'Every idea is a node.'},
+  assembly:{style:'product',motto:'Take it apart. Put it back.'},
+  bento:{style:'soft',motto:'Play is a build tool.'},
+  noir:{style:'film',motto:'Every frame is a decision.'},
+  garden:{style:'serif',motto:'Ideas grow in public.'},
+};
+const personaOf = id => persona[id] || { style:'cosmic', motto:'' };
 const pad = n => String(n).padStart(2, '0');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 const paint = (el, id) => { const [a, b] = colors[id] || colors.signal; el.style.setProperty('--pa', a); el.style.setProperty('--pb', b); };
@@ -141,13 +155,13 @@ function openSpecs() {
       <p>${esc(world.label)} — ${esc(world.description)}</p></div>
     <dl class="pn-table">
       <div><dt>모델</dt><dd><b>${world.number}</b> / ${total}</dd></div>
-      <div><dt>시리즈</dt><dd>${index < 10 ? 'Worlds · 01–10' : 'Experiments · 11–20'}</dd></div>
+      <div><dt>시그니처</dt><dd class="pn-motto" data-persona="${personaOf(current).style}">${esc(personaOf(current).motto)}</dd></div>
       <div><dt>카테고리</dt><dd>${esc(world.kind)}</dd></div>
       <div><dt>인터랙션</dt><dd class="pn-chips">${specList(world).map(s => `<span>${esc(s)}</span>`).join('')}</dd></div>
       <div><dt>담긴 작업</dt><dd class="pn-works">${projects.map(p => `<a href="${esc(p.url)}" target="_blank" rel="noopener"><b>${esc(p.name)}</b><small>${esc(p.category)}</small><span>↗</span></a>`).join('')}</dd></div>
     </dl>
     <div class="pn-compare"><span class="pn-kicker">다른 모델과 비교</span><div>${card(prev, 'PREV')}${card(next, 'NEXT')}</div>
-      <button type="button" class="pn-all" data-pn-lineup>스무 개 모델 전체 보기 ◈</button></div>
+      <button type="button" class="pn-all" data-pn-lineup>열 개의 세계 전체 보기 ◈</button></div>
   </div>`;
   document.body.style.overflow = 'hidden';
   sheet.showModal();
@@ -161,6 +175,7 @@ function playIntro(world, from) {
   document.querySelector('.pn-intro')?.remove();
   const intro = document.createElement('div');
   intro.className = 'pn-intro';
+  intro.dataset.persona = personaOf(world.id).style;
   intro.setAttribute('aria-hidden', 'true');
   paint(intro, world.id);
   const to = worldCatalog.indexOf(world);
@@ -172,9 +187,9 @@ function playIntro(world, from) {
   intro.innerHTML = `<i class="pn-orb"></i><i class="pn-ring"></i><i class="pn-flash"></i><i class="pn-scan"></i>
     <div class="pn-intro-top"><span class="pn-rec"><b></b>REC</span><span class="pn-tc">00:00:00:00</span><span>CUT ${pad(start + 1)} → ${pad(to + 1)}</span><span>MODEL ${world.number} / ${total}</span></div>
     <i class="pn-frame" aria-hidden="true"></i>
-    <div class="pn-intro-core"><span class="pn-intro-eyebrow">${esc(fromName)} <em>→</em> Introducing</span><h2 data-text="${esc(world.name)}">${name}</h2><p>${esc(world.label)}</p></div>
+    <div class="pn-intro-core"><span class="pn-intro-eyebrow">${esc(fromName)} <em>→</em> Introducing</span><h2 data-text="${esc(world.name)}">${name}</h2><p class="pn-intro-motto">${esc(personaOf(world.id).motto)}</p><p>${esc(world.label)}</p></div>
     <div class="pn-intro-foot">
-      <dl class="pn-intro-specs"><div><dt>KIND</dt><dd>${esc(world.kind)}</dd></div><div><dt>INTERACTION</dt><dd>${esc(world.interaction)}</dd></div><div><dt>SERIES</dt><dd>${Number(world.number) <= 10 ? 'WORLDS' : 'EXPERIMENTS'}</dd></div></dl>
+      <dl class="pn-intro-specs"><div><dt>KIND</dt><dd>${esc(world.kind)}</dd></div><div><dt>INTERACTION</dt><dd>${esc(world.interaction)}</dd></div><div><dt>WORLD</dt><dd>${world.number} OF ${pad(total)}</dd></div></dl>
       <div class="pn-timeline" style="--from:${start};--to:${to};--n:${total}"><div class="pn-clips">${clips}</div><i class="pn-head"><span>${world.number}</span></i></div>
     </div>
     <span class="pn-intro-skip">CLICK TO ENTER ↘</span>`;
@@ -204,6 +219,7 @@ export function paintLineup() {
   const choices = [...menu.querySelectorAll('[data-world-choice]')];
   choices.forEach((button, index) => {
     paint(button, button.dataset.worldChoice);
+    button.dataset.persona = personaOf(button.dataset.worldChoice).style;
     button.style.setProperty('--i', index);
     button.dataset.num = pad(index + 1);
   });
@@ -216,9 +232,10 @@ export function paintLineup() {
     if (!world || preview.dataset.id === id) return;
     preview.dataset.id = id;
     paint(preview, id);
+    preview.dataset.persona = personaOf(id).style;
     preview.innerHTML = `<i class="lp-orb"></i><span class="lp-num">${world.number}</span>
-      <div class="lp-copy"><span class="lp-kind">${esc(world.kind)} · ${Number(world.number) <= 10 ? 'WORLDS' : 'EXPERIMENTS'}</span>
-      <b>${esc(world.name)}</b><p>${esc(world.label)} — ${esc(world.description)}</p>
+      <div class="lp-copy"><span class="lp-kind">${esc(world.kind)} · WORLD ${world.number}</span>
+      <b>${esc(world.name)}</b><em class="lp-motto">${esc(personaOf(id).motto)}</em><p>${esc(world.label)} — ${esc(world.description)}</p>
       <div class="lp-chips">${specList(world).map(x => `<span>${esc(x)}</span>`).join('')}</div>
       <span class="lp-enter">ENTER WORLD ↗</span></div>`;
   };
