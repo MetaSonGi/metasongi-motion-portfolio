@@ -1,0 +1,307 @@
+/* Assembly Study — "Follow the Product" (worlds/product.js). Every rule scoped to the assembly world. */
+body[data-world=assembly] .as {
+  --ink: #f6f0e6;
+  --mute: rgba(246, 240, 230, .66);
+  --line: rgba(255, 255, 255, .12);
+  position: relative;
+  color: var(--ink);
+  font-family: 'Noto Sans KR', system-ui, sans-serif;
+  overflow-x: clip;
+}
+body[data-world=assembly] .as *,
+body[data-world=assembly] .as *::before,
+body[data-world=assembly] .as *::after { box-sizing: border-box; }
+
+/* ---------- layers ---------- */
+body[data-world=assembly] .as-bg {
+  position: fixed; inset: 0; z-index: 0; background: #060608; pointer-events: none;
+}
+body[data-world=assembly] .as-bg::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(60% 50% at 50% 44%, color-mix(in srgb, var(--pa) 13%, transparent), transparent 70%),
+    radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, .6));
+}
+body[data-world=assembly] .as-back {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+}
+body[data-world=assembly] .as-gl {
+  position: fixed; inset: 0; z-index: 2; display: block;
+  width: 100% !important; height: 100% !important;
+  touch-action: pan-y; cursor: grab; outline: none;
+}
+body[data-world=assembly] .as.is-grabbing .as-gl,
+body[data-world=assembly] .as.is-grabbing { cursor: grabbing; }
+body[data-world=assembly] .as-hud {
+  position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden;
+}
+body[data-world=assembly] .as-flash {
+  position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 50%, #fff 0, color-mix(in srgb, var(--pb) 80%, transparent) 30%, transparent 72%);
+  mix-blend-mode: screen;
+}
+body[data-world=assembly] .as-track { position: relative; height: 1000vh; pointer-events: none; }
+
+/* ---------- kinetic type ---------- */
+body[data-world=assembly] .as-wd { display: inline-block; white-space: nowrap; }
+body[data-world=assembly] .as-ch {
+  display: inline-block; overflow: hidden; vertical-align: top;
+  padding: .08em .02em .12em; margin: -.08em -.02em -.12em;
+}
+body[data-world=assembly] .as-in {
+  display: inline-block; will-change: transform;
+  font-variation-settings: 'wdth' var(--w, 100);
+}
+
+/* reveal title — sits BEHIND the WebGL canvas so the device floats in front of it */
+body[data-world=assembly] .as-title {
+  position: absolute; left: 50%; top: 50%; margin: 0;
+  transform: translate(-50%, -54%);
+  font-family: 'Archivo', sans-serif; font-weight: 800;
+  font-size: min(15vw, 31vh); line-height: .8; letter-spacing: -.035em;
+  text-align: center; white-space: nowrap; color: var(--ink);
+}
+body[data-world=assembly] .as-tl { display: block; }
+body[data-world=assembly] .as-title .as-in {
+  font-variation-settings: 'wdth' var(--tw, 100);
+  background: linear-gradient(180deg, #fffaf2 8%, var(--pb) 52%, var(--pa) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+body[data-world=assembly] .as-pre .as-title .as-ch { visibility: hidden; }
+body[data-world=assembly] .as-pre .as-r,
+body[data-world=assembly] .as-pre .as-hint { opacity: 0; }
+
+/* outlined chapter numbers + end word, also behind the canvas */
+body[data-world=assembly] .as-num {
+  position: absolute; left: 3vw; top: 11vh; visibility: hidden;
+  font-family: 'Archivo', sans-serif; font-weight: 900; line-height: .8;
+  font-size: min(30vw, 62vh); letter-spacing: -.04em;
+  font-variation-settings: 'wdth' var(--w, 100);
+  color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--pb) 55%, transparent);
+}
+body[data-world=assembly] .as-endword {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -60%);
+  visibility: hidden; white-space: nowrap;
+  font-family: 'Archivo', sans-serif; font-weight: 900; line-height: .8;
+  font-size: min(12.5vw, 30vh); letter-spacing: -.03em;
+  color: transparent; -webkit-text-stroke: 1.2px color-mix(in srgb, var(--pb) 40%, transparent);
+}
+
+/* ---------- beats ---------- */
+body[data-world=assembly] .as-beat {
+  position: absolute; inset: 0; visibility: hidden;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  text-align: center; padding: 100px 24px 7vh;
+}
+body[data-world=assembly] .as-b-reveal { visibility: visible; justify-content: space-between; padding-bottom: 5vh; }
+body[data-world=assembly] .as-b-snap { justify-content: center; padding-bottom: 100px; }
+body[data-world=assembly] .as-r-foot { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+body[data-world=assembly] .as-eyebrow {
+  display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--pb);
+}
+body[data-world=assembly] .as-tag {
+  margin: 0; font-family: 'Instrument Serif', serif; font-size: clamp(26px, 3.2vw, 44px); line-height: 1.05; color: var(--ink);
+}
+body[data-world=assembly] .as-tag em { font-style: italic; color: var(--pa); }
+body[data-world=assembly] .as-lead { margin: 0; font-size: 14px; line-height: 1.6; color: var(--mute); max-width: 34em; }
+body[data-world=assembly] .as-cue {
+  margin-top: 14px; display: inline-flex; flex-direction: column; align-items: center; gap: 10px;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .28em; color: var(--mute);
+}
+body[data-world=assembly] .as-cue i {
+  width: 1px; height: 44px; background: linear-gradient(var(--pa), transparent);
+  transform-origin: top; animation: as-cue 1.8s cubic-bezier(.6, 0, .2, 1) infinite;
+}
+body[data-world=assembly] .as.is-paused .as-cue i { animation-play-state: paused; }
+@keyframes as-cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
+
+body[data-world=assembly] .as-h {
+  margin: 0; font-family: 'Archivo', sans-serif; font-weight: 800;
+  font-size: clamp(32px, 4.8vw, 84px); line-height: .94; letter-spacing: -.03em;
+  color: var(--ink); max-width: min(62vw, 16ch);
+}
+body[data-world=assembly] .as-h-big { font-size: clamp(54px, 10vw, 190px); max-width: none; }
+body[data-world=assembly] .as-b-final .as-h { max-width: min(80vw, 20ch); font-size: clamp(30px, 4vw, 66px); }
+body[data-world=assembly] .as-sub { margin: 16px 0 0; font-size: 15px; line-height: 1.65; color: var(--mute); max-width: 34em; }
+body[data-world=assembly] .as-b-final .as-eyebrow { margin-bottom: 16px; }
+
+/* ---------- callouts ---------- */
+body[data-world=assembly] .as-callouts { position: absolute; inset: 0; }
+body[data-world=assembly] .as-co { position: absolute; left: 0; top: 0; width: 0; height: 0; visibility: hidden; }
+body[data-world=assembly] .as-co-dot {
+  position: absolute; left: -6px; top: -6px; width: 12px; height: 12px; border-radius: 50%;
+  border: 1.5px solid var(--pb); background: rgba(6, 6, 8, .55);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--pa) 18%, transparent), 0 0 16px var(--pa);
+  transform-origin: 50% 50%;
+}
+body[data-world=assembly] .as-co-line {
+  position: absolute; left: 0; top: 0; height: 1px; width: 0; transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--pb), color-mix(in srgb, var(--pb) 35%, transparent));
+}
+body[data-world=assembly] .as-co-label {
+  position: absolute; left: 0; top: 0; width: max-content; max-width: 230px;
+  display: grid; gap: 3px; padding: 10px 14px;
+  border-left: 1px solid var(--pa);
+  background: linear-gradient(90deg, rgba(10, 10, 12, .55), rgba(10, 10, 12, 0));
+}
+body[data-world=assembly] .as-co-label.is-left {
+  text-align: right; border-left: 0; border-right: 1px solid var(--pa);
+  background: linear-gradient(270deg, rgba(10, 10, 12, .55), rgba(10, 10, 12, 0));
+}
+body[data-world=assembly] .as-co-label small { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .2em; color: var(--pa); }
+body[data-world=assembly] .as-co-label b {
+  font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 24px; line-height: 1;
+  font-variation-settings: 'wdth' 112; color: var(--ink); letter-spacing: -.01em;
+}
+body[data-world=assembly] .as-co-label span { font-size: 12px; line-height: 1.4; color: var(--mute); }
+
+body[data-world=assembly] .as-sweep {
+  position: absolute; top: 0; left: 0; width: 35vw; height: 100%; visibility: hidden;
+  background: linear-gradient(90deg, transparent, rgba(255, 238, 214, .2) 50%, transparent);
+  mix-blend-mode: screen;
+}
+
+/* ---------- chapters ---------- */
+body[data-world=assembly] .as-chap { position: absolute; inset: 0; visibility: hidden; }
+body[data-world=assembly] .as-card {
+  position: absolute; left: 5vw; top: 50%; transform: translateY(-46%);
+  width: min(440px, 37vw); padding: 28px 30px 30px; pointer-events: auto;
+  background: linear-gradient(160deg, rgba(20, 19, 22, .62), rgba(8, 8, 10, .42));
+  -webkit-backdrop-filter: blur(18px) saturate(1.25); backdrop-filter: blur(18px) saturate(1.25);
+  border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+body[data-world=assembly] .as-card .as-eyebrow { margin-bottom: 14px; letter-spacing: .16em; }
+body[data-world=assembly] .as-h3 { font-size: clamp(30px, 3.4vw, 54px); max-width: none; }
+body[data-world=assembly] .as-desc { margin: 16px 0 0; font-size: 17px; font-weight: 500; line-height: 1.55; color: var(--ink); }
+body[data-world=assembly] .as-body { margin: 10px 0 0; font-size: 13.5px; line-height: 1.7; color: var(--mute); }
+body[data-world=assembly] .as-stack { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; padding: 0; }
+body[data-world=assembly] .as-stack li {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--ink); background: rgba(255, 255, 255, .04);
+}
+body[data-world=assembly] .as-link,
+body[data-world=assembly] .as-cta {
+  display: inline-flex; align-items: center; gap: 8px; pointer-events: auto; text-decoration: none;
+  border-radius: 999px; font-weight: 700; transition: transform .25s ease, background-color .25s ease, color .25s ease;
+}
+body[data-world=assembly] .as-link {
+  margin-top: 22px; padding: 12px 20px; font-size: 14px;
+  color: #140b04; background: var(--pa);
+}
+body[data-world=assembly] .as-link:hover,
+body[data-world=assembly] .as-cta:hover { transform: translateY(-2px); background: var(--pb); color: #140b04; }
+body[data-world=assembly] .as-cta {
+  margin-top: 26px; padding: 16px 30px; font-size: 16px;
+  color: #140b04; background: var(--pa); box-shadow: 0 0 40px color-mix(in srgb, var(--pa) 45%, transparent);
+}
+body[data-world=assembly] .as a:focus-visible,
+body[data-world=assembly] .as button:focus-visible { outline: 2px solid var(--pb); outline-offset: 3px; }
+
+body[data-world=assembly] .as-hint {
+  position: absolute; right: 64px; bottom: 26px; visibility: hidden;
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .26em; color: var(--mute);
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; transition: opacity .6s ease;
+}
+body[data-world=assembly] .as-hint.is-done { opacity: 0 !important; }
+
+/* ---------- progress rail ---------- */
+body[data-world=assembly] .as-rail {
+  position: fixed; right: 18px; top: 50%; transform: translateY(-50%); z-index: 5;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+}
+body[data-world=assembly] .as-rail-bar {
+  position: absolute; right: 5px; top: 12px; bottom: 12px; width: 1px; background: rgba(255, 255, 255, .14);
+}
+body[data-world=assembly] .as-rail-bar b {
+  position: absolute; inset: 0; background: var(--pa); transform-origin: top; transform: scaleY(0);
+}
+body[data-world=assembly] .as-rail button {
+  position: relative; appearance: none; border: 0; background: none; cursor: pointer;
+  display: flex; align-items: center; gap: 10px; padding: 6px 0; color: var(--mute);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+}
+body[data-world=assembly] .as-rail button span {
+  opacity: 0; transform: translateX(6px); transition: opacity .3s ease, transform .3s ease, color .3s ease; white-space: nowrap;
+}
+body[data-world=assembly] .as-rail:hover button span,
+body[data-world=assembly] .as-rail button.is-on span { opacity: 1; transform: none; }
+body[data-world=assembly] .as-rail button.is-on span { color: var(--ink); }
+body[data-world=assembly] .as-rail button i {
+  position: relative; z-index: 1; width: 11px; height: 11px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .4); background: #0a0a0c; transition: background-color .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+body[data-world=assembly] .as-rail button.is-on i {
+  background: var(--pa); border-color: var(--pa); box-shadow: 0 0 12px var(--pa);
+}
+
+/* ---------- narrow screens ---------- */
+@media (max-width: 759px) {
+  body[data-world=assembly] .as-title { font-size: min(15.5vw, 24vh); }
+  body[data-world=assembly] .as-beat { padding: 96px 16px 6vh; }
+  body[data-world=assembly] .as-h { max-width: 88vw; font-size: clamp(28px, 9vw, 44px); }
+  body[data-world=assembly] .as-h-big { font-size: clamp(48px, 16vw, 90px); }
+  body[data-world=assembly] .as-sub { font-size: 13.5px; }
+  body[data-world=assembly] .as-co-label { max-width: 128px; padding: 6px 8px; }
+  body[data-world=assembly] .as-co-label b { font-size: 15px; }
+  body[data-world=assembly] .as-co-label span { font-size: 10.5px; }
+  body[data-world=assembly] .as-co-label small { font-size: 9px; }
+  body[data-world=assembly] .as-num { left: auto; right: 4vw; top: 12vh; font-size: 40vw; }
+  body[data-world=assembly] .as-endword { font-size: 15vw; }
+  body[data-world=assembly] .as-card {
+    left: 12px; right: 30px; top: auto; bottom: 14px; transform: none; width: auto;
+    padding: 18px 18px 20px; border-radius: 18px; max-height: 50vh; overflow: hidden;
+  }
+  body[data-world=assembly] .as-card .as-eyebrow { font-size: 10px; margin-bottom: 10px; }
+  body[data-world=assembly] .as-h3 { font-size: 28px; }
+  body[data-world=assembly] .as-desc { font-size: 14.5px; margin-top: 10px; }
+  body[data-world=assembly] .as-body { display: none; }
+  body[data-world=assembly] .as-stack { margin-top: 12px; }
+  body[data-world=assembly] .as-link { margin-top: 14px; padding: 10px 16px; font-size: 13px; }
+  body[data-world=assembly] .as-rail { right: 8px; }
+  body[data-world=assembly] .as-rail button span { display: none; }
+  body[data-world=assembly] .as-rail button i { width: 9px; height: 9px; }
+  body[data-world=assembly] .as-rail-bar { right: 4px; }
+  body[data-world=assembly] .as-hint { right: 14px; bottom: auto; top: 128px; }
+}
+
+/* ---------- static layout (reduced motion / no WebGL / libs offline) ---------- */
+body[data-world=assembly] .as-static {
+  max-width: 1120px; margin: 0 auto; padding: 120px 20px 96px; background: transparent;
+}
+body[data-world=assembly] .as-s-hero { text-align: center; padding: 6vh 0 48px; }
+body[data-world=assembly] .as-s-title {
+  margin: 14px 0 18px; font-family: 'Archivo', sans-serif; font-weight: 800;
+  font-size: clamp(48px, 11vw, 170px); line-height: .86; letter-spacing: -.035em;
+  font-variation-settings: 'wdth' 112; overflow-wrap: anywhere;
+  background: linear-gradient(180deg, #fffaf2 8%, var(--pb) 55%, var(--pa)); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+body[data-world=assembly] .as-s-hero .as-lead { margin: 12px auto 0; }
+body[data-world=assembly] .as-s-specs {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; margin: 0 0 64px;
+  background: var(--line); border: 1px solid var(--line); border-radius: 18px; overflow: hidden;
+}
+body[data-world=assembly] .as-s-specs div { padding: 18px 20px; background: #0b0b0e; }
+body[data-world=assembly] .as-s-specs dt { font-size: 12px; color: var(--mute); }
+body[data-world=assembly] .as-s-specs dd { margin: 6px 0 0; font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 22px; color: var(--ink); }
+body[data-world=assembly] .as-s-list { display: grid; gap: 28px; }
+body[data-world=assembly] .as-s-card {
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0; overflow: hidden;
+  border: 1px solid var(--line); border-radius: 22px; background: #0b0b0e;
+}
+body[data-world=assembly] .as-s-card figure { margin: 0; aspect-ratio: 3 / 2; }
+body[data-world=assembly] .as-s-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+body[data-world=assembly] .as-s-copy { position: relative; padding: 30px 30px 32px; }
+body[data-world=assembly] .as-s-copy h2 { margin: 10px 0 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(28px, 3.4vw, 44px); line-height: 1; letter-spacing: -.02em; }
+body[data-world=assembly] .as-s-num {
+  position: absolute; right: 24px; top: 14px; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 64px; line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px color-mix(in srgb, var(--pb) 50%, transparent);
+}
+body[data-world=assembly] .as-s-end { text-align: center; padding: 80px 0 0; }
+body[data-world=assembly] .as-s-end h2 { margin: 14px 0 0; font-family: 'Archivo', sans-serif; font-weight: 800; font-size: clamp(32px, 5vw, 64px); letter-spacing: -.03em; }
+@media (max-width: 759px) {
+  body[data-world=assembly] .as-s-card { grid-template-columns: 1fr; }
+  body[data-world=assembly] .as-s-copy { padding: 22px 20px 24px; }
+  body[data-world=assembly] .as-s-num { font-size: 44px; }
+}

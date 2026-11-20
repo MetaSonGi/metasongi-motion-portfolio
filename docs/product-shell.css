@@ -319,3 +319,5 @@ html body:not([data-world=home]) #experience .pc-steps button.active>span{backgr
 .pc-ripple{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:color-mix(in srgb,var(--pa) 55%,#fff);pointer-events:none;animation:pc-ripple .6s ease-out forwards;mix-blend-mode:screen}
 @keyframes pc-ripple{to{transform:scale(22);opacity:0}}
 @media (prefers-reduced-motion:reduce){html body:not([data-world=home]) #experience :is(.pc-btn,.pc-cta,.pc-card){transition:none}}
+/* the white accent of the film world makes the cursor spotlight too strong */
+body[data-world=noir] .kx-spot{opacity:.3}
