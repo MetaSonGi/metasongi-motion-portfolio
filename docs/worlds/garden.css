@@ -1,0 +1,194 @@
+/* "Digital Garden — ideas grow" — world `garden` (worlds/garden.js). Every rule is scoped. */
+html body[data-world=garden] { overflow: visible; overflow-x: clip; background: #07110c; }
+html body[data-world=garden] #experience { filter: none !important; transform: none !important; animation: none !important; }
+html body[data-world=garden] .world-header { background: none; }
+
+body[data-world=garden] .gd {
+  --leaf: #9be15d; --moss: #00b37a; --ink: #f4f8ec; --dim: rgba(240, 248, 230, .72);
+  --bloom-grad: linear-gradient(175deg, #f4ffd8 0%, #c8f58a 35%, #9be15d 62%, #00b37a 100%);
+  --ig: 0; --ix: 0; --f: 0; --hud: 0; --night: 0; --lv: 0; --lc: #9be15d;
+  position: relative; color: var(--ink); overflow-x: clip;
+  font-family: 'Noto Sans KR', system-ui, sans-serif;
+}
+body[data-world=garden] .gd *, body[data-world=garden] .gd *::before, body[data-world=garden] .gd *::after { box-sizing: border-box; }
+
+/* ---------- fixed stage ---------- */
+body[data-world=garden] .gd-canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; background: #1d2747; }
+body[data-world=garden] .gd-veil { position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(ellipse 125% 95% at 50% 45%, transparent 55%, rgba(4, 14, 9, calc(.35 + var(--night) * .3)) 100%),
+    linear-gradient(180deg, rgba(4, 12, 8, calc(.28 * var(--hud))) 0%, transparent 22%, transparent 62%, rgba(4, 12, 8, calc(.42 * var(--hud) + .12)) 100%); }
+body[data-world=garden] .gd-leaders { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; overflow: visible; opacity: var(--lv); }
+body[data-world=garden] .gd-leader { fill: none; stroke: var(--lc); stroke-width: 1.6; stroke-dasharray: 2 6; stroke-linecap: round; filter: drop-shadow(0 0 4px var(--lc)); }
+body[data-world=garden] .gd-leader-dot { fill: var(--lc); filter: drop-shadow(0 0 6px var(--lc)); }
+body[data-world=garden] .gd-ui { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+body[data-world=garden] .gd-track { position: relative; z-index: 0; pointer-events: none; }
+body[data-world=garden] .gd-loading { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); margin: 0; font: 500 11px/1 'JetBrains Mono', monospace; letter-spacing: .3em; color: var(--dim); }
+
+/* ---------- shared type ---------- */
+body[data-world=garden] .gd-eyebrow { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0;
+  font: 500 11px/1 'JetBrains Mono', monospace; letter-spacing: .32em; color: var(--dim); text-transform: uppercase; }
+body[data-world=garden] .gd-eyebrow i { display: block; width: 44px; height: 1px; background: linear-gradient(90deg, transparent, var(--leaf), transparent); }
+body[data-world=garden] .gd-sub { margin: 22px auto 0; max-width: 34em; font: 400 15px/1.8 'Noto Sans KR', sans-serif; color: var(--dim); word-break: keep-all; text-shadow: 0 2px 18px rgba(0, 0, 0, .45); }
+
+/* Vine type: letters sprout up from the baseline, staggered by --i over --n */
+body[data-world=garden] .gd-line { display: block; white-space: nowrap; }
+body[data-world=garden] .gd-sp { display: inline-block; width: .24em; }
+body[data-world=garden] .gd-w { display: inline-block; white-space: nowrap; font-style: normal; }
+body[data-world=garden] em.gd-w { font-style: italic; }
+body[data-world=garden] .gd-ch {
+  display: inline-block; transform-origin: 50% 92%;
+  --l: clamp(0, calc((var(--g, 1) * (var(--n, 10) + 6) - var(--i, 0)) / 6), 1);
+  --q: calc(1 - var(--l));
+  opacity: clamp(0, calc(var(--l) * 1.6), 1);
+  transform: translateY(calc(var(--q) * .32em)) scale(calc(.55 + var(--l) * .45), var(--l)) rotate(calc(var(--q) * -16deg));
+}
+body[data-world=garden] em.gd-w .gd-ch { background: var(--bloom-grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .05em; }
+
+body[data-world=garden] .gd-vine-svg { display: block; width: min(560px, 80vw); height: 46px; overflow: visible; margin-top: 6px; }
+body[data-world=garden] .gd-vine-svg path { fill: none; stroke: var(--leaf); stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--g, 1)); filter: drop-shadow(0 0 6px rgba(155, 225, 93, .55)); }
+body[data-world=garden] .gd-vleaf { fill: var(--moss); transform-box: fill-box; transform-origin: center; transform: scale(clamp(0, calc((var(--g, 1) - var(--k)) * 6), 1)); }
+body[data-world=garden] .gd-vbud { fill: #f4ffd8; transform-box: fill-box; transform-origin: center; transform: scale(clamp(0, calc((var(--g, 1) - .9) * 10), 1)); filter: drop-shadow(0 0 8px #c8f58a); }
+
+/* ---------- intro ---------- */
+body[data-world=garden] .gd-intro { --g: var(--ig); position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; padding: 96px 16px 90px;
+  opacity: calc(1 - var(--ix) * 1.1); transform: translateY(calc(var(--ix) * -6vh)); }
+body[data-world=garden] .gd-title { margin: 22px 0 0; font: 400 clamp(64px, 12.5vw, 210px)/.86 'Instrument Serif', Georgia, serif; letter-spacing: -.02em; color: var(--ink);
+  text-shadow: 0 10px 60px rgba(10, 20, 30, .35); }
+body[data-world=garden] .gd-intro .gd-eyebrow, body[data-world=garden] .gd-intro .gd-sub { opacity: clamp(0, calc(var(--ig) * 2 - .8), 1); }
+body[data-world=garden] .gd-hint { position: absolute; left: 50%; bottom: clamp(22px, 5vh, 46px); transform: translateX(-50%); display: grid; justify-items: center; gap: 12px;
+  font: 500 10.5px/1 'JetBrains Mono', monospace; letter-spacing: .38em; color: var(--dim); opacity: clamp(0, calc(var(--ig) * 2 - 1), 1); }
+body[data-world=garden] .gd-hint i { display: block; width: 1px; height: 46px; background: linear-gradient(var(--leaf), transparent); transform-origin: top; animation: gd-hint 2.4s cubic-bezier(.6, 0, .2, 1) infinite; }
+@keyframes gd-hint { 0% { transform: scaleY(0); opacity: 1 } 60% { transform: scaleY(1); opacity: 1 } 100% { transform: scaleY(1); opacity: 0 } }
+body[data-world=garden] .gd.is-paused .gd-hint i { animation-play-state: paused; }
+
+/* ---------- vine chapter headings ---------- */
+body[data-world=garden] .gd-vine { position: absolute; left: clamp(18px, 5vw, 80px); bottom: clamp(70px, 13vh, 130px); max-width: calc(100vw - 36px);
+  opacity: calc(1 - var(--o, 0)); transform: translateY(calc(var(--o, 0) * -40px)); filter: blur(calc(var(--o, 0) * 8px)); }
+body[data-world=garden] .gd-vine-title { margin: 0; font: 400 clamp(46px, 7.4vw, 128px)/.9 'Instrument Serif', Georgia, serif; letter-spacing: -.015em; color: var(--ink);
+  text-shadow: 0 8px 40px rgba(0, 0, 0, .35); }
+body[data-world=garden] .gd-vine-ko { margin: 14px 0 0; font: 400 15px/1.7 'Noto Sans KR', sans-serif; color: var(--dim); opacity: clamp(0, calc(var(--g, 0) * 3 - 1.6), 1); text-shadow: 0 2px 14px rgba(0, 0, 0, .5); }
+
+/* ---------- project cards ---------- */
+body[data-world=garden] .gd-card { --v: 0; position: absolute; left: clamp(16px, 4.5vw, 72px); top: 50%; width: min(440px, calc(100vw - 32px));
+  padding: 26px 28px 24px; border-radius: 26px 26px 26px 4px; pointer-events: none; color: var(--ink);
+  opacity: var(--v); transform: translate3d(calc((1 - var(--v)) * -28px), -50%, 0) scale(calc(.97 + var(--v) * .03));
+  background: linear-gradient(165deg, rgba(12, 28, 18, .8), rgba(5, 14, 10, .88)); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .08), 0 0 60px -20px color-mix(in srgb, var(--c) 45%, transparent); }
+body[data-world=garden] .gd-card.is-on { pointer-events: auto; }
+body[data-world=garden] .gd-card::before { content: ''; position: absolute; left: 26px; right: 26px; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--c), transparent); }
+body[data-world=garden] .gd-card-head { display: flex; justify-content: space-between; gap: 12px; font: 500 10px/1.3 'JetBrains Mono', monospace; letter-spacing: .2em; text-transform: uppercase; color: var(--c); }
+body[data-world=garden] .gd-card-head span:last-child { color: var(--dim); text-align: right; }
+body[data-world=garden] .gd-card-latin { margin: 14px 0 2px; font: 400 16px/1.3 'Instrument Serif', serif; color: var(--dim); }
+body[data-world=garden] .gd-card-title { margin: 0; font: 400 clamp(34px, 3.6vw, 50px)/1 'Instrument Serif', Georgia, serif; letter-spacing: -.01em; }
+body[data-world=garden] .gd-card-title em { font-style: italic; background: linear-gradient(170deg, #fff, var(--c)); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .06em; }
+body[data-world=garden] .gd-card-desc { margin: 14px 0 0; font: 500 15px/1.65 'Noto Sans KR', sans-serif; color: var(--ink); word-break: keep-all; }
+body[data-world=garden] .gd-card-body { margin: 8px 0 0; font: 400 13px/1.75 'Noto Sans KR', sans-serif; color: var(--dim); word-break: keep-all; }
+body[data-world=garden] .gd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 0; padding: 0; list-style: none; }
+body[data-world=garden] .gd-chips li { padding: 5px 11px; border-radius: 99px; border: 1px solid color-mix(in srgb, var(--c, #9be15d) 35%, transparent); font: 500 10.5px/1.2 'JetBrains Mono', monospace; letter-spacing: .04em; color: var(--ink); background: rgba(255, 255, 255, .04); }
+body[data-world=garden] .gd-card-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; padding: 11px 18px; border-radius: 99px; text-decoration: none;
+  font: 500 13px/1 'Noto Sans KR', sans-serif; color: #08140d; background: linear-gradient(135deg, #f4ffd8, var(--c)); box-shadow: 0 10px 30px -10px var(--c); transition: transform .3s, box-shadow .3s; }
+body[data-world=garden] .gd-card-link:hover { transform: translateY(-2px); box-shadow: 0 16px 36px -10px var(--c); }
+body[data-world=garden] .gd-card-link:focus-visible, body[data-world=garden] .gd-btn:focus-visible, body[data-world=garden] .gd-seasons button:focus-visible { outline: 2px solid #f4ffd8; outline-offset: 3px; }
+
+/* ---------- HUD: clock, seasons, planting hint ---------- */
+body[data-world=garden] .gd-clock { position: absolute; left: clamp(16px, 4.5vw, 72px); top: 98px; display: grid; gap: 6px; opacity: var(--hud);
+  padding: 12px 16px 14px; border-radius: 18px; background: rgba(6, 18, 12, .34); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, .1); }
+body[data-world=garden] .gd-seasons ol { padding: 14px 12px !important; border-radius: 22px; background: rgba(6, 18, 12, .34); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, .1); }
+body[data-world=garden] .gd-clock-time { font: italic 400 34px/1 'Instrument Serif', serif; color: var(--ink); text-shadow: 0 2px 16px rgba(0, 0, 0, .4); }
+body[data-world=garden] .gd-clock-season { font: 500 10px/1.2 'JetBrains Mono', monospace; letter-spacing: .26em; color: var(--leaf); }
+body[data-world=garden] .gd-clock-bar { display: block; width: 120px; height: 1px; background: rgba(255, 255, 255, .18); overflow: hidden; }
+body[data-world=garden] .gd-clock-bar b { display: block; height: 100%; background: linear-gradient(90deg, #ffb27a, #9be15d, #38e0b0, #ffc35e, #7f9cff); transform-origin: left; transform: scaleX(0); }
+
+body[data-world=garden] .gd-seasons { position: absolute; right: clamp(14px, 3vw, 44px); top: 50%; transform: translateY(-50%); opacity: var(--hud); pointer-events: auto; }
+body[data-world=garden] .gd-seasons ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 16px; }
+body[data-world=garden] .gd-seasons button { display: flex; align-items: center; gap: 12px; flex-direction: row-reverse; padding: 4px; background: none; border: 0; color: var(--dim); cursor: pointer; font: inherit; }
+body[data-world=garden] .gd-seasons i { width: 9px; height: 9px; border-radius: 50% 0; border: 1px solid currentColor; transform: rotate(45deg); transition: background .4s, color .4s, transform .4s; }
+body[data-world=garden] .gd-seasons span { display: grid; text-align: right; font: 500 10px/1.2 'JetBrains Mono', monospace; letter-spacing: .2em; text-transform: uppercase; opacity: .78; transition: opacity .4s; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+body[data-world=garden] .gd-seasons small { font: 400 11px/1.3 'Noto Sans KR', sans-serif; letter-spacing: 0; text-transform: none; }
+body[data-world=garden] .gd-seasons li.is-past i { background: color-mix(in srgb, var(--leaf) 45%, transparent); color: var(--leaf); }
+body[data-world=garden] .gd-seasons li.is-active i { background: var(--leaf); color: var(--leaf); transform: rotate(45deg) scale(1.35); box-shadow: 0 0 14px var(--leaf); }
+body[data-world=garden] .gd-seasons li.is-active span, body[data-world=garden] .gd-seasons button:hover span { opacity: 1; color: var(--ink); }
+
+body[data-world=garden] .gd-plant-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); margin: 0; display: flex; align-items: center; gap: 10px; white-space: nowrap;
+  padding: 9px 16px; border-radius: 99px; background: rgba(6, 16, 12, .42); border: 1px solid rgba(155, 225, 93, .22); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  font: 400 12px/1 'Noto Sans KR', sans-serif; color: var(--dim); opacity: calc(var(--hud) * .95); }
+body[data-world=garden] .gd-plant-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--leaf); box-shadow: 0 0 10px var(--leaf); animation: gd-pulse 2s ease-in-out infinite; }
+body[data-world=garden] .gd-plant-hint.is-planted { color: var(--ink); border-color: rgba(155, 225, 93, .5); }
+body[data-world=garden] .gd.is-paused .gd-plant-dot { animation-play-state: paused; }
+@keyframes gd-pulse { 50% { transform: scale(1.6); opacity: .5 } }
+
+/* ---------- finale ---------- */
+body[data-world=garden] .gd-finale { --g: var(--f); position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; padding: 96px 16px 80px;
+  opacity: clamp(0, calc(var(--f) * 2), 1); }
+body[data-world=garden] .gd-fin-title { margin: 20px 0 0; font: 400 clamp(54px, 10vw, 170px)/.88 'Instrument Serif', Georgia, serif; letter-spacing: -.02em; color: var(--ink); text-shadow: 0 0 60px rgba(155, 225, 93, .25); }
+body[data-world=garden] .gd-finale .gd-sub, body[data-world=garden] .gd-fin-count, body[data-world=garden] .gd-fin-actions { opacity: clamp(0, calc(var(--f) * 3 - 2), 1); transform: translateY(calc((1 - var(--f)) * 20px)); }
+body[data-world=garden] .gd-fin-count { margin: 12px 0 0; font: 400 13px/1.6 'Noto Sans KR', sans-serif; color: var(--leaf); }
+body[data-world=garden] .gd-fin-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
+body[data-world=garden] .gd-finale[inert] .gd-fin-actions { pointer-events: none; }
+body[data-world=garden] .gd-finale:not([inert]) .gd-fin-actions { pointer-events: auto; }
+body[data-world=garden] .gd-btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 99px; cursor: pointer; text-decoration: none;
+  font: 500 14px/1 'Noto Sans KR', sans-serif; color: var(--ink); background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .2); transition: transform .3s, background .3s; }
+body[data-world=garden] .gd-btn:hover { transform: translateY(-2px); background: rgba(255, 255, 255, .12); }
+body[data-world=garden] .gd-btn--bloom { color: #06140c; border-color: transparent; background: var(--bloom-grad); box-shadow: 0 14px 40px -12px rgba(155, 225, 93, .8); }
+body[data-world=garden] .gd-btn--bloom:hover { background: var(--bloom-grad); }
+
+/* ---------- mobile ---------- */
+@media (max-width: 760px) {
+  body[data-world=garden] .gd-sub { font-size: 13.5px; }
+  body[data-world=garden] .gd-title { font-size: clamp(56px, 17vw, 96px); }
+  body[data-world=garden] .gd-vine { bottom: 74px; }
+  body[data-world=garden] .gd-vine-title { font-size: clamp(42px, 12.5vw, 70px); }
+  body[data-world=garden] .gd-vine-ko { font-size: 13px; }
+  body[data-world=garden] .gd-card { left: 12px; right: 12px; width: auto; top: auto; bottom: 64px; padding: 18px 18px 16px; border-radius: 20px 20px 20px 4px;
+    transform: translate3d(0, calc((1 - var(--v)) * 24px), 0); }
+  body[data-world=garden] .gd-card-title { font-size: 32px; }
+  body[data-world=garden] .gd-card-latin { font-size: 14px; margin-top: 10px; }
+  body[data-world=garden] .gd-card-desc { font-size: 14px; margin-top: 8px; }
+  body[data-world=garden] .gd-card-body { display: none; }
+  body[data-world=garden] .gd-chips { margin-top: 10px; }
+  body[data-world=garden] .gd-card-link { margin-top: 12px; padding: 10px 16px; }
+  body[data-world=garden] .gd-seasons { top: auto; bottom: auto; top: 96px; right: 12px; transform: none; }
+  body[data-world=garden] .gd-seasons ol { gap: 8px; }
+  body[data-world=garden] .gd-seasons span { display: none; }
+  body[data-world=garden] .gd-clock { top: 92px; left: 16px; }
+  body[data-world=garden] .gd-clock-time { font-size: 26px; }
+  body[data-world=garden] .gd-clock-bar { width: 80px; }
+  body[data-world=garden] .gd-plant-hint { bottom: 14px; font-size: 11px; padding: 7px 12px; }
+  body[data-world=garden] .gd-fin-title { font-size: clamp(48px, 14vw, 80px); }
+}
+
+/* ---------- static botanical plates (reduced motion / no WebGL) ---------- */
+body[data-world=garden] .gd--static { --paper: #f3f0e2; --ink: #1f2f22; --dim: #5d6b58; background: var(--paper); color: var(--ink); padding: 120px clamp(16px, 6vw, 96px) 120px;
+  background-image: radial-gradient(rgba(60, 90, 40, .08) .8px, transparent .8px); background-size: 7px 7px; }
+body[data-world=garden] .gd--static .gd-eyebrow { color: var(--dim); }
+body[data-world=garden] .gd--static .gd-sub { color: var(--dim); text-shadow: none; }
+body[data-world=garden] .gds-intro { text-align: center; padding-bottom: 60px; border-bottom: 1px solid rgba(31, 47, 34, .2); }
+body[data-world=garden] .gds-title { margin: 20px 0 0; font: 400 clamp(52px, 9vw, 140px)/.9 'Instrument Serif', Georgia, serif; letter-spacing: -.02em; }
+body[data-world=garden] .gds-title em { color: #2f7a3a; }
+body[data-world=garden] .gds-list { list-style: none; margin: 0; padding: 0; }
+body[data-world=garden] .gds-plate { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: clamp(24px, 5vw, 80px); align-items: center; padding: 70px 0; border-bottom: 1px solid rgba(31, 47, 34, .2); position: relative; }
+body[data-world=garden] .gds-plate-no { position: absolute; top: 24px; left: 0; margin: 0; font: 500 11px/1 'JetBrains Mono', monospace; letter-spacing: .3em; color: var(--dim); }
+body[data-world=garden] .gds-fig { margin: 0; position: relative; display: grid; justify-items: center; }
+body[data-world=garden] .gds-sprig { position: absolute; width: 70%; height: 110%; top: -5%; fill: none; stroke: #2f7a3a; stroke-width: 1.2; opacity: .5; }
+body[data-world=garden] .gds-sprig ellipse { fill: color-mix(in srgb, var(--c) 30%, transparent); }
+body[data-world=garden] .gds-sprig circle { fill: color-mix(in srgb, var(--c) 40%, transparent); }
+body[data-world=garden] .gds-disc { position: relative; width: min(340px, 72vw); aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 1px solid rgba(31, 47, 34, .35);
+  box-shadow: 0 0 0 10px var(--paper), 0 0 0 11px color-mix(in srgb, var(--c) 60%, transparent), 0 30px 60px -30px rgba(0, 0, 0, .5); }
+body[data-world=garden] .gds-disc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+body[data-world=garden] .gds-fig figcaption { margin-top: 24px; font: 400 16px/1.3 'Instrument Serif', serif; color: var(--dim); }
+body[data-world=garden] .gds-cat { font: 500 10.5px/1 'JetBrains Mono', monospace; letter-spacing: .24em; color: #2f7a3a; }
+body[data-world=garden] .gd--static .gd-card-title { margin-top: 12px; font-size: clamp(36px, 4.5vw, 60px); }
+body[data-world=garden] .gd--static .gd-card-title em { color: #2f7a3a; }
+body[data-world=garden] .gd--static .gd-card-desc { color: var(--ink); }
+body[data-world=garden] .gd--static .gd-card-body { color: var(--dim); }
+body[data-world=garden] .gd--static .gd-chips li { color: var(--ink); border-color: rgba(31, 47, 34, .25); background: none; }
+body[data-world=garden] .gd--static .gd-card-link { --c: #9be15d; }
+body[data-world=garden] .gds-fin { text-align: center; padding-top: 80px; display: grid; justify-items: center; gap: 30px; }
+@media (max-width: 760px) {
+  body[data-world=garden] .gds-plate { grid-template-columns: 1fr; padding-top: 64px; }
+}
+body[data-world=garden] .gd-finale::before { content: ''; position: absolute; left: 50%; top: 50%; width: min(1100px, 130vw); height: min(720px, 90vh); transform: translate(-50%, -50%); z-index: -1;
+  background: radial-gradient(closest-side, rgba(2, 8, 6, .62), rgba(2, 8, 6, .3) 60%, transparent); pointer-events: none; }
