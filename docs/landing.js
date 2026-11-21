@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { worldCatalog } from './world-catalog.js?v=ten-2';
+import { worldCatalog } from './world-catalog.js?v=ten-3';
 import { projects, profileURL } from './content.js?v=ten-worlds-1';
 import { createScope, mountProjectViewer } from './world-utils.js?v=ten-worlds-1';
 

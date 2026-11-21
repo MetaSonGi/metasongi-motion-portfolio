@@ -1,0 +1,254 @@
+/* Play / Build — the toy box (world `bento`, worlds/toybox.js). Every rule is scoped. */
+html body[data-world=bento] { overflow: visible; overflow-x: clip; background: #ffe3f0; }
+html body[data-world=bento] #experience,
+html body[data-world=bento] #experience.entering { filter: none !important; transform: none !important; animation: none !important; }
+
+body[data-world=bento] .tb {
+  --ink: #2a1838; --cream: #fff7ef; --pa2: var(--pa, #ff7ad9); --pb2: var(--pb, #ffd36b);
+  --mint: #5fe0bf; --blue: #7aa2ff; --lilac: #b58cff; --orange: #ff9257;
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  position: relative; color: var(--ink); font-family: 'Noto Sans KR', system-ui, sans-serif; overflow-x: clip;
+}
+body[data-world=bento] .tb *, body[data-world=bento] .tb *::before, body[data-world=bento] .tb *::after { box-sizing: border-box; }
+body[data-world=bento] .tb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+/* ---------- layers ---------- */
+body[data-world=bento] .tb-gl {
+  position: fixed; inset: 0; z-index: 1; display: block; width: 100% !important; height: 100% !important;
+  touch-action: pan-y; outline: none; background: #ffe3f0;
+}
+body[data-world=bento] .tb[data-hover=grab] .tb-gl { cursor: grab; }
+body[data-world=bento] .tb[data-hover=knock] .tb-gl { cursor: pointer; }
+body[data-world=bento] .tb[data-hover=poke] .tb-gl { cursor: pointer; }
+body[data-world=bento] .tb.is-grabbing .tb-gl, body[data-world=bento] .tb.is-grabbing { cursor: grabbing; }
+body[data-world=bento] .tb-hud { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+body[data-world=bento] .tb-track { position: relative; z-index: 0; pointer-events: none; }
+body[data-world=bento] .tb-loading {
+  position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); margin: 0;
+  font: 500 12px/1 'JetBrains Mono', monospace; letter-spacing: .12em; color: var(--ink); opacity: .6;
+}
+
+/* ---------- shared bits ---------- */
+body[data-world=bento] .tb-eyebrow {
+  display: flex; align-items: center; gap: 10px; margin: 0;
+  font: 500 11px/1 'JetBrains Mono', monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--ink);
+}
+body[data-world=bento] .tb-eyebrow i { display: block; width: 28px; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--pa2), var(--pb2)); }
+body[data-world=bento] .tb-btn {
+  pointer-events: auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 42px; padding: 0 18px; border: 2.5px solid var(--ink); border-radius: 999px;
+  background: #fff; color: var(--ink); font: 800 13px/1 'Noto Sans KR', 'Archivo', system-ui, sans-serif; text-decoration: none;
+  box-shadow: 0 5px 0 var(--ink); cursor: pointer; transition: transform .25s var(--spring), box-shadow .2s, background .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+body[data-world=bento] .tb-btn:hover { transform: translateY(-2px) rotate(-1.5deg); box-shadow: 0 7px 0 var(--ink); background: var(--pb2); }
+body[data-world=bento] .tb-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+body[data-world=bento] .tb-btn:focus-visible { outline: 3px solid var(--pa2); outline-offset: 3px; }
+body[data-world=bento] .tb-btn--ink { background: var(--ink); color: #fff; box-shadow: 0 5px 0 var(--pa2); }
+body[data-world=bento] .tb-btn--ink:hover { background: #3c2350; box-shadow: 0 7px 0 var(--pa2); }
+body[data-world=bento] .tb-btn--big { min-height: 52px; padding: 0 24px; font-size: 15px; }
+
+/* ---------- intro ---------- */
+body[data-world=bento] .tb-intro {
+  position: absolute; left: 50%; bottom: clamp(88px, 13vh, 130px); width: min(560px, calc(100% - 32px));
+  display: grid; justify-items: center; gap: 14px; text-align: center;
+  opacity: 0; transform: translate(-50%, 24px) scale(.96); transition: opacity .5s, transform .7s var(--spring);
+}
+body[data-world=bento] .tb.is-ready.is-top .tb-intro { opacity: 1; transform: translate(-50%, 0); }
+body[data-world=bento] .tb-intro-sub { margin: 0; font-size: clamp(14px, 1.4vw, 17px); line-height: 1.7; font-weight: 500; }
+body[data-world=bento] .tb-open {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 26px;
+  border: 3px solid var(--ink); border-radius: 999px; background: var(--pa2); color: var(--ink);
+  font: 900 16px/1 'Noto Sans KR', system-ui, sans-serif; box-shadow: 0 7px 0 var(--ink); cursor: pointer;
+  animation: tb-bob 1.6s var(--spring) infinite;
+}
+body[data-world=bento] .tb-open:hover { background: var(--pb2); }
+body[data-world=bento] .tb-open:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+body[data-world=bento] .tb:not(.is-top) .tb-open { pointer-events: none; }
+@keyframes tb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px) rotate(-1.5deg); } }
+
+body[data-world=bento] .tb-tip {
+  position: absolute; left: 50%; bottom: 88px; margin: 0; padding: 10px 18px 10px 12px; border-radius: 999px;
+  display: flex; align-items: center; gap: 8px; background: #fff; border: 2.5px solid var(--ink); box-shadow: 0 5px 0 var(--ink);
+  font: 700 13px/1 'Noto Sans KR', system-ui, sans-serif; white-space: nowrap;
+  opacity: 0; transform: translate(-50%, 20px) scale(.8); transition: opacity .3s, transform .5s var(--spring);
+}
+body[data-world=bento] .tip-hand, body[data-world=bento] .tb-tip b { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--pb2); font-size: 14px; animation: tb-wave 1.2s ease-in-out infinite; }
+body[data-world=bento] .tb.has-letters .tb-tip { opacity: 1; transform: translate(-50%, 0) scale(1); }
+@keyframes tb-wave { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(14deg); } }
+
+/* ---------- station label ---------- */
+body[data-world=bento] .tb-station {
+  position: absolute; left: clamp(16px, 3vw, 40px); top: 96px; max-width: min(460px, calc(100% - 32px));
+  display: flex; align-items: flex-start; gap: 14px;
+  opacity: 0; transform: translateY(-14px); transition: opacity .35s, transform .5s var(--spring);
+}
+body[data-world=bento] .tb.is-ready:not([data-st=intro]):not([data-st=fin]) .tb-station { opacity: 1; transform: none; }
+body[data-world=bento] .tb-station.is-pop .tb-st-num { animation: tb-pop .6s var(--spring); }
+body[data-world=bento] .tb-st-num {
+  flex: none; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%;
+  background: var(--pb2); border: 3px solid var(--ink); box-shadow: 0 5px 0 var(--ink);
+  font: 900 20px/1 'Archivo', system-ui, sans-serif; font-variation-settings: 'wdth' 110; transform: rotate(-8deg);
+}
+body[data-world=bento] .tb-st-title {
+  margin: 2px 0 6px; font: 900 clamp(26px, 3.3vw, 46px)/.95 'Archivo', system-ui, sans-serif; font-variation-settings: 'wdth' 118;
+  letter-spacing: -.02em; color: var(--ink); -webkit-text-stroke: 0;
+  text-shadow: 3px 3px 0 var(--pa2);
+}
+body[data-world=bento] .tb-st-ko { margin: 0; font-size: 14px; line-height: 1.6; font-weight: 500; max-width: 34ch; background: rgba(255, 247, 239, .78); padding: 4px 8px; border-radius: 10px; }
+@keyframes tb-pop { 0% { transform: scale(.4) rotate(-40deg); } 70% { transform: scale(1.15) rotate(4deg); } 100% { transform: scale(1) rotate(-8deg); } }
+
+/* ---------- station tools ---------- */
+body[data-world=bento] .tb-tools {
+  position: absolute; left: clamp(16px, 3vw, 40px); bottom: 92px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  opacity: 0; visibility: hidden; transform: translateY(16px); transition: opacity .3s, transform .5s var(--spring), visibility 0s .3s;
+}
+body[data-world=bento] .tb[data-st=blocks] .tb-tools--blocks,
+body[data-world=bento] .tb[data-st=pad] .tb-tools--pad { opacity: 1; visibility: visible; transform: none; transition: opacity .3s, transform .5s var(--spring); }
+body[data-world=bento] .tb-swatch {
+  pointer-events: auto; width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--ink); background: var(--sw);
+  box-shadow: 0 4px 0 var(--ink); cursor: pointer; transition: transform .25s var(--spring);
+}
+body[data-world=bento] .tb-swatch:hover { transform: translateY(-3px) scale(1.08); }
+body[data-world=bento] .tb-swatch.is-on { transform: translateY(-4px) scale(1.18); outline: 3px solid #fff; outline-offset: -7px; }
+body[data-world=bento] .tb-swatch:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+body[data-world=bento] .tb-padzone {
+  position: absolute; left: 0; top: 0; width: 0; height: 0; pointer-events: none; touch-action: none; cursor: crosshair; border-radius: 12px;
+}
+body[data-world=bento] .tb[data-st=pad] .tb-padzone { pointer-events: auto; }
+
+/* ---------- capsule cards ---------- */
+body[data-world=bento] .tb-card {
+  position: absolute; right: clamp(16px, 3.5vw, 56px); top: 50%; width: min(400px, 36vw); max-height: calc(100vh - 200px); overflow: auto;
+  padding: 16px 16px 18px; border-radius: 28px; background: var(--c); border: 3px solid var(--ink);
+  box-shadow: 0 10px 0 var(--ink), 0 28px 60px -20px rgba(80, 20, 70, .45);
+  opacity: 0; visibility: hidden; transform: translate(60px, -46%) scale(.55) rotate(9deg);
+  transition: opacity .25s, transform .6s var(--spring), visibility 0s .3s; scrollbar-width: none;
+}
+body[data-world=bento] .tb-card.is-on { opacity: 1; visibility: visible; transform: translate(0, -50%) rotate(-1.2deg); transition: opacity .25s, transform .7s var(--spring); pointer-events: auto; }
+body[data-world=bento] .tb-card-img { position: relative; margin: 0 0 14px; border-radius: 18px; overflow: hidden; border: 3px solid var(--ink); aspect-ratio: 16 / 10; background: #fff; }
+body[data-world=bento] .tb-card-img img { display: block; width: 100%; height: 100%; object-fit: cover; }
+body[data-world=bento] .tb-card-sticker {
+  position: absolute; right: 10px; top: 10px; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+  background: var(--k); border: 3px solid var(--ink); font: 900 16px/1 'Archivo', system-ui, sans-serif; transform: rotate(12deg);
+}
+body[data-world=bento] .tb-card.is-on .tb-card-sticker { animation: tb-pop .7s .25s var(--spring) both; }
+body[data-world=bento] .tb-card-cat { margin: 0 0 4px; font: 500 11px/1.2 'JetBrains Mono', monospace; letter-spacing: .14em; }
+body[data-world=bento] .tb-card-name { margin: 0 0 8px; font: 900 clamp(24px, 2.4vw, 34px)/.98 'Archivo', system-ui, sans-serif; font-variation-settings: 'wdth' 112; letter-spacing: -.02em; }
+body[data-world=bento] .tb-card-desc { margin: 0 0 12px; font-size: 15px; line-height: 1.6; font-weight: 500; }
+body[data-world=bento] .tb-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 16px; padding: 0; list-style: none; }
+body[data-world=bento] .tb-chips li {
+  padding: 6px 11px; border-radius: 999px; background: #fff; border: 2px solid var(--ink);
+  font: 600 11px/1 'JetBrains Mono', monospace; box-shadow: 0 3px 0 var(--ink);
+}
+body[data-world=bento] .tb-chips li:nth-child(odd) { transform: rotate(-2deg); }
+body[data-world=bento] .tb-chips li:nth-child(even) { transform: rotate(2deg); background: var(--k); }
+body[data-world=bento] .tb-card-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+/* ---------- finale ---------- */
+body[data-world=bento] .tb-finale {
+  position: absolute; left: 50%; top: clamp(96px, 14vh, 150px); width: min(900px, calc(100% - 32px));
+  display: grid; justify-items: center; gap: 14px; text-align: center;
+  opacity: 0; visibility: hidden; transform: translate(-50%, -20px) scale(.9); transition: opacity .3s, transform .6s var(--spring), visibility 0s .3s;
+}
+body[data-world=bento] .tb-finale.is-on { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity .4s, transform .8s var(--spring); }
+body[data-world=bento] .tb-fin-title {
+  margin: 0; font: 900 clamp(38px, 7vw, 104px)/.92 'Archivo', system-ui, sans-serif; font-variation-settings: 'wdth' 120; letter-spacing: -.035em;
+  color: var(--ink); text-shadow: 4px 4px 0 #fff;
+}
+body[data-world=bento] .tb-fin-title em {
+  font-style: normal; display: inline-block; padding: 0 .12em; border-radius: .2em; background: var(--pa2); color: var(--ink);
+  transform: rotate(-3deg); box-shadow: 0 .08em 0 var(--ink); border: .045em solid var(--ink); text-shadow: none;
+}
+body[data-world=bento] .tb-finale.is-on .tb-fin-title em { animation: tb-pop .8s .2s var(--spring) both; }
+body[data-world=bento] .tb-fin-sub { margin: 0; font-size: clamp(14px, 1.4vw, 17px); line-height: 1.7; font-weight: 500; background: rgba(255, 247, 239, .8); padding: 6px 12px; border-radius: 14px; }
+body[data-world=bento] .tb-fin-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 6px; }
+body[data-world=bento] .tb-finale:not(.is-on) .tb-btn { pointer-events: none; }
+
+/* ---------- nav ---------- */
+body[data-world=bento] .tb-nav {
+  position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); pointer-events: auto;
+  padding: 6px; border-radius: 999px; background: #fff; border: 2.5px solid var(--ink); box-shadow: 0 5px 0 var(--ink);
+  opacity: 0; transition: opacity .5s;
+}
+body[data-world=bento] .tb.is-ready .tb-nav { opacity: 1; }
+body[data-world=bento] .tb-nav ol { display: flex; gap: 2px; margin: 0; padding: 0; list-style: none; }
+body[data-world=bento] .tb-nav button {
+  display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 11px; border: 0; border-radius: 999px; background: transparent;
+  color: var(--ink); font: 700 12px/1 'Noto Sans KR', system-ui, sans-serif; cursor: pointer; transition: background .2s, transform .3s var(--spring);
+}
+body[data-world=bento] .tb-nav button i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ink); background: #fff; transition: background .2s, transform .3s var(--spring); }
+body[data-world=bento] .tb-nav li.is-past button i { background: var(--pb2); }
+body[data-world=bento] .tb-nav li.is-active button { background: var(--pa2); }
+body[data-world=bento] .tb-nav li.is-active button i { background: var(--ink); transform: scale(1.2); }
+body[data-world=bento] .tb-nav button:hover { transform: translateY(-2px); }
+body[data-world=bento] .tb-nav button:focus-visible { outline: 3px solid var(--ink); outline-offset: 1px; }
+body[data-world=bento] .tb-nav-bar { position: absolute; left: 22px; right: 22px; bottom: -2px; height: 4px; border-radius: 4px; overflow: hidden; }
+body[data-world=bento] .tb-nav-bar b { display: block; height: 100%; background: linear-gradient(90deg, var(--pa2), var(--pb2)); transform-origin: left; transform: scaleX(0); }
+
+/* ---------- boing words ---------- */
+body[data-world=bento] .tb-boings { position: absolute; inset: 0; }
+body[data-world=bento] .tb-boings span {
+  position: absolute; transform: translate(-50%, -50%); white-space: nowrap;
+  font: 900 clamp(26px, 3.4vw, 46px)/1 'Archivo', system-ui, sans-serif; font-variation-settings: 'wdth' 125;
+  color: var(--c); -webkit-text-stroke: 2.5px var(--ink); paint-order: stroke fill; text-shadow: 3px 4px 0 var(--ink);
+  animation: tb-boing .95s cubic-bezier(.2, .9, .3, 1) forwards;
+}
+@keyframes tb-boing {
+  0% { transform: translate(-50%, -50%) scale(.2) rotate(var(--r)); opacity: 0; }
+  22% { transform: translate(-50%, -80%) scale(1.25) rotate(var(--r)); opacity: 1; }
+  40% { transform: translate(-50%, -85%) scale(.92, 1.08) rotate(var(--r)); }
+  58% { transform: translate(-50%, -95%) scale(1.04, .96) rotate(var(--r)); opacity: 1; }
+  100% { transform: translate(-50%, -170%) scale(1) rotate(var(--r)); opacity: 0; }
+}
+
+body[data-world=bento] .tb.is-paused .tb-open,
+body[data-world=bento] .tb.is-paused .tb-tip b { animation: none; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 760px), (max-aspect-ratio: 9/10) {
+  body[data-world=bento] .tb-station { top: 88px; gap: 10px; }
+  body[data-world=bento] .tb-st-num { width: 42px; height: 42px; font-size: 16px; box-shadow: 0 4px 0 var(--ink); }
+  body[data-world=bento] .tb-st-ko { font-size: 12.5px; }
+  body[data-world=bento] .tb-card {
+    left: 12px; right: 12px; top: auto; bottom: 74px; width: auto; max-height: 50vh; max-height: 50svh;
+    display: grid; grid-template-columns: 112px 1fr; column-gap: 12px; align-items: start; padding: 12px; border-radius: 22px;
+    transform: translateY(70px) scale(.7) rotate(5deg);
+  }
+  body[data-world=bento] .tb-card.is-on { transform: rotate(-.6deg); }
+  body[data-world=bento] .tb-card-img { grid-row: 1 / 4; aspect-ratio: 1; margin: 0; border-radius: 14px; }
+  body[data-world=bento] .tb-card-sticker { width: 32px; height: 32px; font-size: 12px; right: 4px; top: 4px; }
+  body[data-world=bento] .tb-card-name { font-size: 22px; }
+  body[data-world=bento] .tb-card-desc { font-size: 13px; margin-bottom: 8px; }
+  body[data-world=bento] .tb-chips, body[data-world=bento] .tb-card-actions { grid-column: 1 / -1; }
+  body[data-world=bento] .tb-chips { margin: 10px 0 12px; }
+  body[data-world=bento] .tb-card-actions .tb-btn { flex: 1; min-height: 40px; padding: 0 12px; font-size: 12.5px; }
+  body[data-world=bento] .tb-nav button { padding: 0 9px; height: 30px; }
+  body[data-world=bento] .tb-nav button span { display: none; }
+  body[data-world=bento] .tb-tools { bottom: 74px; }
+  body[data-world=bento] .tb-tip { bottom: 74px; }
+  body[data-world=bento] .tb-intro { bottom: 76px; }
+}
+
+/* ---------- static / reduced-motion toy shelf ---------- */
+body[data-world=bento] .tb--static { padding: 110px clamp(14px, 4vw, 48px) 80px; background: #ffe3f0; min-height: 100vh; }
+body[data-world=bento] .tbs-grid { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+body[data-world=bento] .tbs-tile { border: 3px solid var(--ink); border-radius: 28px; box-shadow: 0 8px 0 var(--ink); padding: 22px; background: #fff; min-width: 0; }
+body[data-world=bento] .tbs-hero { grid-column: span 2; background: var(--pb2); display: grid; gap: 16px; align-content: center; }
+body[data-world=bento] .tbs-word { margin: 0; display: flex; flex-wrap: wrap; gap: .04em; font: 900 clamp(44px, 9vw, 130px)/.9 'Archivo', system-ui, sans-serif; font-variation-settings: 'wdth' 120; }
+body[data-world=bento] .tbs-word b { display: inline-flex; white-space: nowrap; font: inherit; }
+body[data-world=bento] .tbs-word span { display: inline-block; color: var(--c); -webkit-text-stroke: .035em var(--ink); paint-order: stroke fill; text-shadow: .04em .05em 0 var(--ink); }
+body[data-world=bento] .tbs-word span:nth-child(odd) { transform: rotate(-4deg); }
+body[data-world=bento] .tbs-word span:nth-child(even) { transform: rotate(3deg) translateY(.04em); }
+body[data-world=bento] .tbs-stack { background: #cdeffd; display: grid; gap: 16px; align-content: start; }
+body[data-world=bento] .tbs-blocks { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+body[data-world=bento] .tbs-blocks li { padding: 10px 14px; border-radius: 10px; background: var(--c); border: 2.5px solid var(--ink); box-shadow: 0 4px 0 var(--ink); font: 800 14px/1 'Archivo', system-ui, sans-serif; }
+body[data-world=bento] .tbs-proj { background: var(--c); display: flex; flex-direction: column; align-items: flex-start; }
+body[data-world=bento] .tbs-proj img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 16px; border: 3px solid var(--ink); margin-bottom: 14px; }
+body[data-world=bento] .tbs-body { margin: 0 0 12px; font-size: 13.5px; line-height: 1.7; }
+body[data-world=bento] .tbs-proj .tb-btn { margin-top: auto; }
+body[data-world=bento] .tbs-fin { grid-column: 1 / -1; background: var(--pa2); display: grid; justify-items: center; gap: 18px; text-align: center; padding: 40px 22px; }
+@media (max-width: 860px) {
+  body[data-world=bento] .tbs-grid { grid-template-columns: minmax(0, 1fr); }
+  body[data-world=bento] .tbs-hero { grid-column: auto; }
+}
