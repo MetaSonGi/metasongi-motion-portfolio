@@ -51,7 +51,7 @@ GitHub Pages는 main 브랜치의 docs 폴더에서 배포합니다. 로그인 �
 |---|---|
 |Object Room (`gallery`)|가로 드래그 전시·작품 상세|
 |The Build Journal (`editorial`)|개발 노트 펼치기·글자 크기·읽기 진행률|
-|Midnight Console (`terminal`)|명령·히스토리·자동 완성·매트릭스|
+|Assembly Study (`assembly`)|스크롤로 제품 회전·분해·조립|
 |Idea Atlas (`atlas`)|노드 이동·지도 패닝·확대·기술 관계|
 |Play / Build (`bento`)|캔버스 그리기·스택 섞기·언어 전환|
 |The Developer Cut (`noir`)|장면 전환·재생·타임라인|
